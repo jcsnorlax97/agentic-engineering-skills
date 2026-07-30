@@ -279,12 +279,16 @@ function Get-ParentDirs($StartPath) {
     return $dirs
 }
 
+function New-ClaudeSource($Location, $FilePath, $Version) {
+    return [PSCustomObject]@{ Location = $Location; File = $FilePath; Version = $Version }
+}
+
 function Get-ClaudeSources($RepoPath, $PackName) {
     $sources = @()
 
     foreach ($rel in @("CLAUDE.md", "CLAUDE.local.md", (Join-Path ".claude" "CLAUDE.md"))) {
         $ver = Get-BlockVersionInFile (Join-Path $RepoPath $rel) $PackName
-        if ($ver) { $sources += "local:${rel} v$ver" }
+        if ($ver) { $sources += New-ClaudeSource "local" $rel $ver }
     }
 
     $projectRulesDir = Join-Path $RepoPath (Join-Path ".claude" "rules")
@@ -292,33 +296,45 @@ function Get-ClaudeSources($RepoPath, $PackName) {
         $ruleFiles = Get-ChildItem -LiteralPath $projectRulesDir -Filter "*.md" -Recurse -File -ErrorAction SilentlyContinue
         foreach ($rf in $ruleFiles) {
             $ver = Get-BlockVersionInFile $rf.FullName $PackName
-            if ($ver) { $sources += "local-rule:$($rf.Name) v$ver" }
+            if ($ver) { $sources += New-ClaudeSource "local-rule" $rf.Name $ver }
         }
     }
 
     foreach ($dir in (Get-ParentDirs $RepoPath)) {
         foreach ($rel in @("CLAUDE.md", "CLAUDE.local.md")) {
             $ver = Get-BlockVersionInFile (Join-Path $dir $rel) $PackName
-            if ($ver) { $sources += "parent:$dir/$rel v$ver" }
+            if ($ver) { $sources += New-ClaudeSource "parent" "$dir/$rel" $ver }
         }
     }
 
     if ($HOME) {
         $userClaudeFile = Join-Path (Join-Path $HOME ".claude") "CLAUDE.md"
         $ver = Get-BlockVersionInFile $userClaudeFile $PackName
-        if ($ver) { $sources += "user:~/.claude/CLAUDE.md v$ver" }
+        if ($ver) { $sources += New-ClaudeSource "user" "~/.claude/CLAUDE.md" $ver }
 
         $userRulesDir = Join-Path (Join-Path $HOME ".claude") "rules"
         if (Test-Path -LiteralPath $userRulesDir) {
             $ruleFiles = Get-ChildItem -LiteralPath $userRulesDir -Filter "*.md" -Recurse -File -ErrorAction SilentlyContinue
             foreach ($rf in $ruleFiles) {
                 $ver = Get-BlockVersionInFile $rf.FullName $PackName
-                if ($ver) { $sources += "user-rule:$($rf.Name) v$ver" }
+                if ($ver) { $sources += New-ClaudeSource "user-rule" $rf.Name $ver }
             }
         }
     }
 
     return $sources
+}
+
+function Format-SourceDetail($Sources) {
+    if ($Sources.Count -eq 0) { return "-" }
+    $parts = $Sources | ForEach-Object { "$($_.Location):$($_.File) v$($_.Version)" }
+    return ($parts -join "; ")
+}
+
+function Format-SourceCompact($Sources) {
+    if ($Sources.Count -eq 0) { return "-" }
+    $parts = $Sources | ForEach-Object { "$($_.Version) ($($_.Location))" }
+    return ($parts -join ", ")
 }
 
 function Resolve-RepoPath($RepoPath) {
@@ -334,15 +350,16 @@ function Invoke-Status {
     Write-Output ""
     Write-Output "Claude Code status for $resolvedTarget"
     Write-Output "(effective = concatenated across all layers; Claude combines rather than overrides)"
+    Write-Output "Multiple sources for one pack = active at more than one layer at once - Claude has no"
+    Write-Output "'most specific wins' rule, both blocks are literally in context; worth reconciling if they differ."
     Write-Output ""
     Write-Output ("{0,-38} {1,-9} {2}" -f "Pack", "Effective", "Sources")
     Write-Output ("{0,-38} {1,-9} {2}" -f ("-" * 38), ("-" * 9), ("-" * 40))
     foreach ($pack in $packs) {
-        $sources = Get-ClaudeSources $resolvedTarget $pack
+        $sources = @(Get-ClaudeSources $resolvedTarget $pack)
         $effective = "NO"
         if ($sources.Count -gt 0) { $effective = "YES" }
-        $sourceText = "-"
-        if ($sources.Count -gt 0) { $sourceText = $sources -join "; " }
+        $sourceText = Format-SourceDetail $sources
         Write-Output ("{0,-38} {1,-9} {2}" -f $pack, $effective, $sourceText)
     }
 
@@ -389,27 +406,49 @@ function Invoke-StatusMulti($RepoPaths) {
     $resolved = @()
     foreach ($r in $RepoPaths) { $resolved += Resolve-RepoPath $r }
 
-    Write-Output ""
-    Write-Output "Claude Code status across $($resolved.Count) repo(s)"
-    Write-Output "Y = active (local, parent-dir, or user-level); N = not active."
-    Write-Output "Run 'baseline status -TargetRepo <path>' on one repo for the source breakdown."
-    Write-Output ""
+    # Precompute every cell (avoids re-scanning the filesystem when sizing columns)
+    # and track each column's widest cell so nothing gets truncated.
+    $cellText = @{}
+    $colWidth = @{}
+    foreach ($rp in $resolved) {
+        $colWidth[$rp] = (Split-Path -Leaf $rp).Length
+    }
+    foreach ($pack in $packs) {
+        foreach ($rp in $resolved) {
+            $sources = @(Get-ClaudeSources $rp $pack)
+            $text = Format-SourceCompact $sources
+            $cellText["$pack|$rp"] = $text
+            if ($text.Length -gt $colWidth[$rp]) { $colWidth[$rp] = $text.Length }
+        }
+    }
 
     $nameWidth = 38
+    foreach ($pack in $packs) { if ($pack.Length -gt $nameWidth) { $nameWidth = $pack.Length } }
+    $nameWidth += 2
+
+    Write-Output ""
+    Write-Output "Claude Code status across $($resolved.Count) repo(s)"
+    Write-Output "'-' = not active. Otherwise: version (layer), e.g. '0.4.1 (local)'."
+    Write-Output "layer: local (repo's own files) / local-rule (.claude/rules) / parent (an ancestor"
+    Write-Output "directory's CLAUDE.md) / user (~/.claude/CLAUDE.md) / user-rule (~/.claude/rules)."
+    Write-Output "Multiple entries in one cell = active at more than one layer at once - Claude"
+    Write-Output "concatenates all of them, there is no 'most specific wins'; worth reconciling if they differ."
+    Write-Output "Run 'baseline status -TargetRepo <path>' on one repo for the full file-path breakdown."
+    Write-Output ""
+
     $header = "{0,-$nameWidth}" -f "Pack"
     foreach ($rp in $resolved) {
         $label = Split-Path -Leaf $rp
-        $header += (" {0,-14}" -f $label)
+        $w = $colWidth[$rp] + 2
+        $header += (" {0,-$w}" -f $label)
     }
     Write-Output $header
 
     foreach ($pack in $packs) {
         $row = "{0,-$nameWidth}" -f $pack
         foreach ($rp in $resolved) {
-            $sources = Get-ClaudeSources $rp $pack
-            $mark = "N"
-            if ($sources.Count -gt 0) { $mark = "Y" }
-            $row += (" {0,-14}" -f $mark)
+            $w = $colWidth[$rp] + 2
+            $row += (" {0,-$w}" -f $cellText["$pack|$rp"])
         }
         Write-Output $row
     }
