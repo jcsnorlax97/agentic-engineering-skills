@@ -17,6 +17,9 @@ param(
     # For 'status': path to a text file listing one repo path per line (# comments, blank lines ignored).
     [string] $ReposFile = "",
 
+    # For 'status': filter the pack table down to one preset's packs instead of every pack.
+    [string] $Preset = "",
+
     [switch] $CreateMissing,
 
     [switch] $SkipMissing,
@@ -48,7 +51,9 @@ Usage:
   baseline verify [pack|all] [-Tools codex,claude,copilot|all] [-TargetRepo <path>]
   baseline apply-all [-Tools codex,claude,copilot|all] [-TargetRepo <path>] [-DryRun] [-SkipMissing]
   baseline apply-preset <preset-name> [-Tools codex,claude,copilot|all] [-TargetRepo <path>] [-DryRun] [-SkipMissing]
+  baseline presets
   baseline status [-TargetRepo <path>]
+  baseline status -Preset <preset-name>
   baseline status -Repos <path1,path2,...>
   baseline status -ReposFile <path-to-txt-listing-one-repo-per-line>
   baseline shim install|verify|remove [-AddToUserPath] [-InstallDir <path>]
@@ -102,7 +107,7 @@ function Invoke-BaselineCommand {
         }
     }
 
-    $validCommands = @("list", "show", "apply", "remove", "verify", "apply-preset", "status", "shim", "help", "--help", "-h")
+    $validCommands = @("list", "show", "apply", "remove", "verify", "apply-preset", "presets", "status", "shim", "help", "--help", "-h")
     if ($validCommands -notcontains $Command) {
         throw "Unknown command: $Command"
     }
@@ -341,14 +346,74 @@ function Resolve-RepoPath($RepoPath) {
     try { return (Resolve-Path -LiteralPath $RepoPath).Path } catch { return $RepoPath }
 }
 
+function Get-AvailablePresetNames {
+    $presetsRoot = Join-Path $repoRoot "presets"
+    if (-not (Test-Path -LiteralPath $presetsRoot)) { return @() }
+    return @(Get-ChildItem -LiteralPath $presetsRoot -Filter "*.txt" -ErrorAction SilentlyContinue |
+        ForEach-Object { $_.BaseName } | Sort-Object)
+}
+
+function Get-PresetContents($Name) {
+    if (-not $Name) {
+        throw "Usage: baseline apply-preset <preset-name> [-Tools ...] [-TargetRepo <path>] [-DryRun] [-SkipMissing]"
+    }
+    $presetsRoot = Join-Path $repoRoot "presets"
+    $presetFile = Join-Path $presetsRoot "$Name.txt"
+    if (-not (Test-Path -LiteralPath $presetFile)) {
+        $available = @(Get-AvailablePresetNames)
+        $availableMsg = if ($available.Count -gt 0) { "; available: $($available -join ', ')" } else { "" }
+        throw "Preset not found: $Name$availableMsg"
+    }
+    $presetBaselines = [System.Collections.Generic.List[string]]::new()
+    $presetHooks = [System.Collections.Generic.List[string]]::new()
+    $inHooks = $false
+    foreach ($line in [System.IO.File]::ReadAllLines($presetFile, [System.Text.Encoding]::UTF8)) {
+        $trimmed = $line.Trim()
+        if (-not $trimmed -or $trimmed.StartsWith('#')) { continue }
+        if ($trimmed -eq '[hooks]') { $inHooks = $true; continue }
+        if ($inHooks) { $presetHooks.Add($trimmed) } else { $presetBaselines.Add($trimmed) }
+    }
+    return [PSCustomObject]@{ Baselines = @($presetBaselines); Hooks = @($presetHooks) }
+}
+
+function Invoke-PresetsList {
+    $presetNames = @(Get-AvailablePresetNames)
+    if (-not $presetNames) {
+        Write-Output "No presets found in $(Join-Path $repoRoot 'presets')"
+        return
+    }
+
+    Write-Output ""
+    Write-Output "Available presets"
+    Write-Output ""
+    foreach ($presetName in $presetNames) {
+        $contents = Get-PresetContents $presetName
+        Write-Output "$presetName  ($($contents.Baselines.Count) packs)"
+        foreach ($pack in $contents.Baselines) {
+            $version = "?"
+            $note = ""
+            try { $version = (Read-PackJson $pack).version } catch { $note = "  [pack not found - preset needs updating]" }
+            Write-Output ("  {0,-38} v{1}{2}" -f $pack, $version, $note)
+        }
+        if ($contents.Hooks.Count -gt 0) {
+            Write-Output "  Hooks:"
+            foreach ($hook in $contents.Hooks) { Write-Output "    $hook" }
+        }
+        Write-Output ""
+    }
+}
+
 function Invoke-Status {
     $packs = Get-PackNames
+    if ($Preset) { $packs = (Get-PresetContents $Preset).Baselines }
     if (-not $packs) { Write-Output "No packs found in $baselinesRoot"; return }
 
     $resolvedTarget = Resolve-RepoPath $TargetRepo
 
+    $titleSuffix = ""
+    if ($Preset) { $titleSuffix = " (preset: $Preset)" }
     Write-Output ""
-    Write-Output "Claude Code status for $resolvedTarget"
+    Write-Output "Claude Code status for $resolvedTarget$titleSuffix"
     Write-Output "(effective = concatenated across all layers; Claude combines rather than overrides)"
     Write-Output "Multiple sources for one pack = active at more than one layer at once - Claude has no"
     Write-Output "'most specific wins' rule, both blocks are literally in context; worth reconciling if they differ."
@@ -401,6 +466,7 @@ function Get-RepoListFromParams($ReposParam, $ReposFileParam) {
 
 function Invoke-StatusMulti($RepoPaths) {
     $packs = Get-PackNames
+    if ($Preset) { $packs = (Get-PresetContents $Preset).Baselines }
     if (-not $packs) { Write-Output "No packs found in $baselinesRoot"; return }
 
     $resolved = @()
@@ -426,8 +492,10 @@ function Invoke-StatusMulti($RepoPaths) {
     foreach ($pack in $packs) { if ($pack.Length -gt $nameWidth) { $nameWidth = $pack.Length } }
     $nameWidth += 2
 
+    $titleSuffix = ""
+    if ($Preset) { $titleSuffix = " (preset: $Preset)" }
     Write-Output ""
-    Write-Output "Claude Code status across $($resolved.Count) repo(s)"
+    Write-Output "Claude Code status across $($resolved.Count) repo(s)$titleSuffix"
     Write-Output "'-' = not active. Otherwise: version (layer), e.g. '0.4.1 (local)'."
     Write-Output "layer: local (repo's own files) / local-rule (.claude/rules) / parent (an ancestor"
     Write-Output "directory's CLAUDE.md) / user (~/.claude/CLAUDE.md) / user-rule (~/.claude/rules)."
@@ -531,40 +599,23 @@ switch ($Command) {
         }
     }
     "apply-preset" {
-        if (-not $Name) {
-            throw "Usage: baseline apply-preset <preset-name> [-Tools ...] [-TargetRepo <path>] [-DryRun] [-SkipMissing]"
-        }
-        $presetsRoot = Join-Path $repoRoot "presets"
-        $presetFile = Join-Path $presetsRoot "$Name.txt"
-        if (-not (Test-Path -LiteralPath $presetFile)) {
-            $available = @(Get-ChildItem -LiteralPath $presetsRoot -Filter "*.txt" -ErrorAction SilentlyContinue | ForEach-Object { $_.BaseName })
-            $availableMsg = if ($available.Count -gt 0) { "; available: $($available -join ', ')" } else { "" }
-            throw "Preset not found: $Name$availableMsg"
-        }
-        $presetBaselines = [System.Collections.Generic.List[string]]::new()
-        $presetHooks = [System.Collections.Generic.List[string]]::new()
-        $inHooks = $false
-        foreach ($line in [System.IO.File]::ReadAllLines($presetFile, [System.Text.Encoding]::UTF8)) {
-            $trimmed = $line.Trim()
-            if (-not $trimmed -or $trimmed.StartsWith('#')) { continue }
-            if ($trimmed -eq '[hooks]') { $inHooks = $true; continue }
-            if ($inHooks) { $presetHooks.Add($trimmed) } else { $presetBaselines.Add($trimmed) }
-        }
+        $contents = Get-PresetContents $Name
         $applyScript = Join-Path $scriptDir "baselines/apply.ps1"
-        foreach ($packName in $presetBaselines) {
+        foreach ($packName in $contents.Baselines) {
             & $applyScript -TargetRepo $TargetRepo -Pack $packName -Tools $Tools -CreateMissing:$CreateMissing -SkipMissing:$SkipMissing -DryRun:$DryRun
         }
-        if ($presetHooks.Count -gt 0) {
+        if ($contents.Hooks.Count -gt 0) {
             Write-Output ""
             Write-Output "Hooks to install - run these commands from inside ${TargetRepo}:"
-            foreach ($hook in $presetHooks) {
+            foreach ($hook in $contents.Hooks) {
                 Write-Output "  hooks apply $hook"
             }
         }
         Write-Output ""
         $resolvedTargetMsg = try { (Resolve-Path -LiteralPath $TargetRepo).Path } catch { $TargetRepo }
-        Write-Output "Done. Applied $($presetBaselines.Count) baseline(s) from preset '$Name' to $resolvedTargetMsg."
+        Write-Output "Done. Applied $($contents.Baselines.Count) baseline(s) from preset '$Name' to $resolvedTargetMsg."
     }
+    "presets" { Invoke-PresetsList }
     "status" {
         if ($Repos -or $ReposFile) {
             Invoke-StatusMulti (Get-RepoListFromParams $Repos $ReposFile)
