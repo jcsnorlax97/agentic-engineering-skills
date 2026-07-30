@@ -16,7 +16,7 @@ $ErrorActionPreference = "Stop"
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = Split-Path -Parent (Split-Path -Parent $scriptDir)
-$packRoot = Join-Path $repoRoot "baselines\$Pack"
+$packRoot = Join-Path $repoRoot "baselines/$Pack"
 
 if (-not (Test-Path -LiteralPath $packRoot)) {
     throw "Unknown portable baseline pack: $Pack"
@@ -25,7 +25,7 @@ if (-not (Test-Path -LiteralPath $packRoot)) {
 $toolMap = @{
     codex = @{ Target = "AGENTS.md"; Adapter = "AGENTS.md.block" }
     claude = @{ Target = "CLAUDE.md"; Adapter = "CLAUDE.md.block" }
-    copilot = @{ Target = ".github\copilot-instructions.md"; Adapter = "copilot-instructions.md.block" }
+    copilot = @{ Target = ".github/copilot-instructions.md"; Adapter = "copilot-instructions.md.block" }
 }
 
 function Read-Utf8Text($Path) {

@@ -113,11 +113,25 @@ Use `scripts/baseline.ps1` as the human-friendly entrypoint:
 ./scripts/baseline.ps1 list
 ./scripts/baseline.ps1 show karpathy-principles
 ./scripts/baseline.ps1 apply karpathy-principles -TargetRepo C:\path\to\repo -DryRun
+./scripts/baseline.ps1 apply karpathy-principles,git-collaboration-hygiene -TargetRepo C:\path\to\repo   # ad hoc subset
 ./scripts/baseline.ps1 apply-all -TargetRepo C:\path\to\repo -DryRun
+./scripts/baseline.ps1 apply-preset supabase-vercel-site -TargetRepo C:\path\to\repo -DryRun              # named, reusable subset
 ./scripts/baseline.ps1 remove karpathy-principles -TargetRepo C:\path\to\repo -DryRun
 ./scripts/baseline.ps1 verify karpathy-principles -TargetRepo C:\path\to\repo
+./scripts/baseline.ps1 status                                                                             # what's in effect here, and from where
+./scripts/baseline.ps1 status -Repos C:\repos\a,C:\repos\b                                                # same, across several repos
+./scripts/baseline.ps1 status -ReposFile C:\repos\my-repos.txt
 ./scripts/baseline.ps1 help
 ```
+
+`list` is a simple local-file check. `status` is inheritance-aware: it
+accounts for how Claude Code actually resolves instructions — repo-local
+files, every parent directory up to the filesystem root, and user-level
+`~/.claude/CLAUDE.md` / `~/.claude/rules/`. A pack applied only at the user
+level shows as in effect everywhere, even where it was never locally
+applied — `list` alone would misreport that repo as missing it. Codex
+(`AGENTS.md`) and Copilot's instructions file have no documented equivalent
+inheritance model, so `status` reports those two as local-file-only.
 
 When called from inside the target repo, omit `-TargetRepo`; it defaults to the
 current directory.

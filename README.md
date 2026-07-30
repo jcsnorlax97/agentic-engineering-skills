@@ -95,12 +95,20 @@ List and apply baselines:
 ./scripts/baseline.ps1 list
 ./scripts/baseline.ps1 show karpathy-principles
 ./scripts/baseline.ps1 apply karpathy-principles -DryRun
+./scripts/baseline.ps1 apply karpathy-principles,git-collaboration-hygiene   # ad hoc subset
 ./scripts/baseline.ps1 apply-all -DryRun
+./scripts/baseline.ps1 status                                               # what's in effect here, and from where
 ./scripts/baseline.ps1 help
 ```
 
 `baseline list` shows each pack plus whether it is already present in the
-current target repo's Claude, Codex, or Copilot instruction file.
+current target repo's Claude, Codex, or Copilot instruction file — a simple
+local-file check. `baseline status` is inheritance-aware: it also checks
+parent directories and `~/.claude/` (user-level), since Claude Code
+concatenates instructions from all of those rather than only reading the
+current repo. See [`baselines/README.md`](baselines/README.md) for the full
+CLI reference, including `apply-preset` for named reusable pack subsets and
+`status -Repos`/`-ReposFile` for a multi-repo dashboard.
 
 `skills list` shows each skill plus whether it is installed for the selected
 personal or project runtime target.

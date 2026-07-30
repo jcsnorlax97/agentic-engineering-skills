@@ -10,7 +10,7 @@ $ErrorActionPreference = "Stop"
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = Split-Path -Parent (Split-Path -Parent $scriptDir)
-$packRoot = Join-Path $repoRoot "baselines\$Pack"
+$packRoot = Join-Path $repoRoot "baselines/$Pack"
 
 if (-not (Test-Path -LiteralPath $packRoot)) {
     throw "Unknown portable baseline pack: $Pack"
@@ -39,9 +39,9 @@ $Tools = Normalize-Tools $Tools
 $required = @(
     "pack.json",
     "baseline.md",
-    "adapters\AGENTS.md.block",
-    "adapters\CLAUDE.md.block",
-    "adapters\copilot-instructions.md.block"
+    "adapters/AGENTS.md.block",
+    "adapters/CLAUDE.md.block",
+    "adapters/copilot-instructions.md.block"
 )
 
 foreach ($rel in $required) {
@@ -52,9 +52,9 @@ foreach ($rel in $required) {
 }
 
 $adapterFiles = @(
-    (Join-Path $packRoot "adapters\AGENTS.md.block"),
-    (Join-Path $packRoot "adapters\CLAUDE.md.block"),
-    (Join-Path $packRoot "adapters\copilot-instructions.md.block")
+    (Join-Path $packRoot "adapters/AGENTS.md.block"),
+    (Join-Path $packRoot "adapters/CLAUDE.md.block"),
+    (Join-Path $packRoot "adapters/copilot-instructions.md.block")
 )
 
 foreach ($adapter in $adapterFiles) {
@@ -74,7 +74,7 @@ if ($TargetRepo) {
     $toolMap = @{
         codex = "AGENTS.md"
         claude = "CLAUDE.md"
-        copilot = ".github\copilot-instructions.md"
+        copilot = ".github/copilot-instructions.md"
     }
     $newBeginPattern = "<!-- BEGIN baseline:$([regex]::Escape($Pack)) v(?<version>[^ >]+) -->"
     $newBlockPattern = "$newBeginPattern.*?<!-- END baseline:$([regex]::Escape($Pack)) -->"

@@ -11,6 +11,12 @@ param(
 
     [string[]] $Tools = @("all"),
 
+    # For 'status': comma-separated repo paths, for the multi-repo dashboard view.
+    [string] $Repos = "",
+
+    # For 'status': path to a text file listing one repo path per line (# comments, blank lines ignored).
+    [string] $ReposFile = "",
+
     [switch] $CreateMissing,
 
     [switch] $SkipMissing,
@@ -42,14 +48,25 @@ Usage:
   baseline verify [pack|all] [-Tools codex,claude,copilot|all] [-TargetRepo <path>]
   baseline apply-all [-Tools codex,claude,copilot|all] [-TargetRepo <path>] [-DryRun] [-SkipMissing]
   baseline apply-preset <preset-name> [-Tools codex,claude,copilot|all] [-TargetRepo <path>] [-DryRun] [-SkipMissing]
+  baseline status [-TargetRepo <path>]
+  baseline status -Repos <path1,path2,...>
+  baseline status -ReposFile <path-to-txt-listing-one-repo-per-line>
   baseline shim install|verify|remove [-AddToUserPath] [-InstallDir <path>]
   baseline help
 
 Compatibility:
   -Pack and -Tools are still supported.
+  -Pack accepts a comma-separated list of pack names, or 'all'.
   When -Tools is omitted, commands use all supported tools: codex, claude, copilot.
   Missing target instruction files are created unless -SkipMissing is passed.
   -CreateMissing is still accepted for older scripts, but is no longer needed.
+
+status accounts for how Claude Code actually resolves instructions: repo-local
+files, every parent directory up to the filesystem root, and user-level
+~/.claude/CLAUDE.md / ~/.claude/rules/. A pack applied only at the user level
+shows as in effect even where it was never locally applied. Codex (AGENTS.md)
+and Copilot have no documented equivalent inheritance model, so those two are
+reported as local-file-only.
 "@
 }
 
@@ -72,6 +89,8 @@ function Write-FriendlyError($Message) {
         [Console]::Error.WriteLine("Suggestion: use 'baseline shim install', 'baseline shim verify', or 'baseline shim remove'.")
     } elseif ($Message -like "Choose either -SkipMissing or -CreateMissing*") {
         [Console]::Error.WriteLine("Suggestion: omit both to create missing instruction files, or pass -SkipMissing to leave them absent.")
+    } elseif ($Message -like "Repos file not found:*") {
+        [Console]::Error.WriteLine("Suggestion: pass -ReposFile with a path to a text file listing one repo path per line.")
     }
 }
 
@@ -83,7 +102,7 @@ function Invoke-BaselineCommand {
         }
     }
 
-    $validCommands = @("list", "show", "apply", "remove", "verify", "apply-preset", "shim", "help", "--help", "-h")
+    $validCommands = @("list", "show", "apply", "remove", "verify", "apply-preset", "status", "shim", "help", "--help", "-h")
     if ($validCommands -notcontains $Command) {
         throw "Unknown command: $Command"
     }
@@ -145,8 +164,11 @@ function Resolve-PackNames($Name) {
             return @(Get-PackNames)
         }
 
-        $null = Read-PackJson $Name
-        return @($Name)
+        $requested = @($Name -split "," | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+        foreach ($p in $requested) {
+            $null = Read-PackJson $p
+        }
+        return $requested
     }
 
     $packNames = @(Get-PackNames)
@@ -157,7 +179,7 @@ function Resolve-PackNames($Name) {
         return @($packNames[0])
     }
 
-    throw "Multiple portable baseline packs are available: $($packNames -join ', '). Pass -Pack <name>."
+    throw "Multiple portable baseline packs are available: $($packNames -join ', '). Pass -Pack <name>, a comma-separated list, or 'all'."
 }
 
 function Normalize-Tools($ToolValues) {
@@ -196,7 +218,7 @@ function Get-ToolMap {
     return @{
         claude = "CLAUDE.md"
         codex = "AGENTS.md"
-        copilot = ".github\copilot-instructions.md"
+        copilot = ".github/copilot-instructions.md"
     }
 }
 
@@ -222,6 +244,176 @@ function Test-BaselineInstalled($ResolvedTargetRepo, $PackName, $ToolName) {
 function Format-StatusCell($ToolName, $Installed) {
     $marker = if ($Installed) { "+" } else { " " }
     return ("[{0} {1}]" -f $ToolName, $marker)
+}
+
+# -- Status: inheritance-aware visibility -------------------------------------
+#
+# Claude Code concatenates instruction files rather than overriding them:
+# user-level (~/.claude/CLAUDE.md, ~/.claude/rules/*.md) applies to every
+# project; it also walks every parent directory from the target repo up to
+# the filesystem root looking for CLAUDE.md / CLAUDE.local.md. A pack can be
+# "in effect" for a repo without being applied to that repo's own files.
+# Codex (AGENTS.md) and Copilot's instructions file have no documented
+# equivalent, so those two are reported as local-file-only, not inheritance-aware.
+
+function Get-BlockVersionInFile($FilePath, $PackName) {
+    if (-not (Test-Path -LiteralPath $FilePath)) { return $null }
+    $text = Read-Utf8Text $FilePath
+    $escapedPack = [regex]::Escape($PackName)
+    foreach ($marker in @("baseline", "portable-agent-baseline")) {
+        $m = [regex]::Match($text, "<!-- BEGIN ${marker}:${escapedPack} v(?<v>[^ >]+) -->")
+        if ($m.Success) { return $m.Groups["v"].Value }
+    }
+    return $null
+}
+
+function Get-ParentDirs($StartPath) {
+    $dirs = @()
+    $current = Split-Path -Parent $StartPath
+    while ($current) {
+        $dirs += $current
+        $parent = Split-Path -Parent $current
+        if (-not $parent -or $parent -eq $current) { break }
+        $current = $parent
+    }
+    return $dirs
+}
+
+function Get-ClaudeSources($RepoPath, $PackName) {
+    $sources = @()
+
+    foreach ($rel in @("CLAUDE.md", "CLAUDE.local.md", (Join-Path ".claude" "CLAUDE.md"))) {
+        $ver = Get-BlockVersionInFile (Join-Path $RepoPath $rel) $PackName
+        if ($ver) { $sources += "local:${rel} v$ver" }
+    }
+
+    $projectRulesDir = Join-Path $RepoPath (Join-Path ".claude" "rules")
+    if (Test-Path -LiteralPath $projectRulesDir) {
+        $ruleFiles = Get-ChildItem -LiteralPath $projectRulesDir -Filter "*.md" -Recurse -File -ErrorAction SilentlyContinue
+        foreach ($rf in $ruleFiles) {
+            $ver = Get-BlockVersionInFile $rf.FullName $PackName
+            if ($ver) { $sources += "local-rule:$($rf.Name) v$ver" }
+        }
+    }
+
+    foreach ($dir in (Get-ParentDirs $RepoPath)) {
+        foreach ($rel in @("CLAUDE.md", "CLAUDE.local.md")) {
+            $ver = Get-BlockVersionInFile (Join-Path $dir $rel) $PackName
+            if ($ver) { $sources += "parent:$dir/$rel v$ver" }
+        }
+    }
+
+    if ($HOME) {
+        $userClaudeFile = Join-Path (Join-Path $HOME ".claude") "CLAUDE.md"
+        $ver = Get-BlockVersionInFile $userClaudeFile $PackName
+        if ($ver) { $sources += "user:~/.claude/CLAUDE.md v$ver" }
+
+        $userRulesDir = Join-Path (Join-Path $HOME ".claude") "rules"
+        if (Test-Path -LiteralPath $userRulesDir) {
+            $ruleFiles = Get-ChildItem -LiteralPath $userRulesDir -Filter "*.md" -Recurse -File -ErrorAction SilentlyContinue
+            foreach ($rf in $ruleFiles) {
+                $ver = Get-BlockVersionInFile $rf.FullName $PackName
+                if ($ver) { $sources += "user-rule:$($rf.Name) v$ver" }
+            }
+        }
+    }
+
+    return $sources
+}
+
+function Resolve-RepoPath($RepoPath) {
+    try { return (Resolve-Path -LiteralPath $RepoPath).Path } catch { return $RepoPath }
+}
+
+function Invoke-Status {
+    $packs = Get-PackNames
+    if (-not $packs) { Write-Output "No packs found in $baselinesRoot"; return }
+
+    $resolvedTarget = Resolve-RepoPath $TargetRepo
+
+    Write-Output ""
+    Write-Output "Claude Code status for $resolvedTarget"
+    Write-Output "(effective = concatenated across all layers; Claude combines rather than overrides)"
+    Write-Output ""
+    Write-Output ("{0,-38} {1,-9} {2}" -f "Pack", "Effective", "Sources")
+    Write-Output ("{0,-38} {1,-9} {2}" -f ("-" * 38), ("-" * 9), ("-" * 40))
+    foreach ($pack in $packs) {
+        $sources = Get-ClaudeSources $resolvedTarget $pack
+        $effective = "NO"
+        if ($sources.Count -gt 0) { $effective = "YES" }
+        $sourceText = "-"
+        if ($sources.Count -gt 0) { $sourceText = $sources -join "; " }
+        Write-Output ("{0,-38} {1,-9} {2}" -f $pack, $effective, $sourceText)
+    }
+
+    Write-Output ""
+    Write-Output "Codex (AGENTS.md) - local file only, no documented inheritance model"
+    foreach ($pack in $packs) {
+        $ver = Get-BlockVersionInFile (Join-Path $resolvedTarget "AGENTS.md") $pack
+        $mark = "NO"
+        if ($ver) { $mark = "YES (v$ver)" }
+        Write-Output ("  {0,-38} {1}" -f $pack, $mark)
+    }
+
+    Write-Output ""
+    Write-Output "Copilot (.github/copilot-instructions.md) - local file only, no documented inheritance model"
+    foreach ($pack in $packs) {
+        $ver = Get-BlockVersionInFile (Join-Path $resolvedTarget ".github/copilot-instructions.md") $pack
+        $mark = "NO"
+        if ($ver) { $mark = "YES (v$ver)" }
+        Write-Output ("  {0,-38} {1}" -f $pack, $mark)
+    }
+    Write-Output ""
+}
+
+function Get-RepoListFromParams($ReposParam, $ReposFileParam) {
+    $list = @()
+    if ($ReposParam) {
+        $list += @($ReposParam -split "," | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+    }
+    if ($ReposFileParam) {
+        if (-not (Test-Path -LiteralPath $ReposFileParam)) { throw "Repos file not found: $ReposFileParam" }
+        foreach ($line in [System.IO.File]::ReadAllLines($ReposFileParam, [System.Text.Encoding]::UTF8)) {
+            $trimmed = $line.Trim()
+            if (-not $trimmed -or $trimmed.StartsWith("#")) { continue }
+            $list += $trimmed
+        }
+    }
+    return $list
+}
+
+function Invoke-StatusMulti($RepoPaths) {
+    $packs = Get-PackNames
+    if (-not $packs) { Write-Output "No packs found in $baselinesRoot"; return }
+
+    $resolved = @()
+    foreach ($r in $RepoPaths) { $resolved += Resolve-RepoPath $r }
+
+    Write-Output ""
+    Write-Output "Claude Code status across $($resolved.Count) repo(s)"
+    Write-Output "Y = active (local, parent-dir, or user-level); N = not active."
+    Write-Output "Run 'baseline status -TargetRepo <path>' on one repo for the source breakdown."
+    Write-Output ""
+
+    $nameWidth = 38
+    $header = "{0,-$nameWidth}" -f "Pack"
+    foreach ($rp in $resolved) {
+        $label = Split-Path -Leaf $rp
+        $header += (" {0,-14}" -f $label)
+    }
+    Write-Output $header
+
+    foreach ($pack in $packs) {
+        $row = "{0,-$nameWidth}" -f $pack
+        foreach ($rp in $resolved) {
+            $sources = Get-ClaudeSources $rp $pack
+            $mark = "N"
+            if ($sources.Count -gt 0) { $mark = "Y" }
+            $row += (" {0,-14}" -f $mark)
+        }
+        Write-Output $row
+    }
+    Write-Output ""
 }
 
 if (@("show", "apply", "remove", "verify") -contains $Command) {
@@ -272,19 +464,19 @@ switch ($Command) {
         }
     }
     "apply" {
-        $applyScript = Join-Path $scriptDir "baselines\apply.ps1"
+        $applyScript = Join-Path $scriptDir "baselines/apply.ps1"
         foreach ($packName in $Packs) {
             & $applyScript -TargetRepo $TargetRepo -Pack $packName -Tools $Tools -CreateMissing:$CreateMissing -SkipMissing:$SkipMissing -DryRun:$DryRun
         }
     }
     "remove" {
-        $removeScript = Join-Path $scriptDir "baselines\remove.ps1"
+        $removeScript = Join-Path $scriptDir "baselines/remove.ps1"
         foreach ($packName in $Packs) {
             & $removeScript -TargetRepo $TargetRepo -Pack $packName -Tools $Tools -DryRun:$DryRun
         }
     }
     "verify" {
-        $verifyScript = Join-Path $scriptDir "baselines\verify.ps1"
+        $verifyScript = Join-Path $scriptDir "baselines/verify.ps1"
         foreach ($packName in $Packs) {
             $verifyArgs = @{
                 Pack = $packName
@@ -319,7 +511,7 @@ switch ($Command) {
             if ($trimmed -eq '[hooks]') { $inHooks = $true; continue }
             if ($inHooks) { $presetHooks.Add($trimmed) } else { $presetBaselines.Add($trimmed) }
         }
-        $applyScript = Join-Path $scriptDir "baselines\apply.ps1"
+        $applyScript = Join-Path $scriptDir "baselines/apply.ps1"
         foreach ($packName in $presetBaselines) {
             & $applyScript -TargetRepo $TargetRepo -Pack $packName -Tools $Tools -CreateMissing:$CreateMissing -SkipMissing:$SkipMissing -DryRun:$DryRun
         }
@@ -334,6 +526,13 @@ switch ($Command) {
         $resolvedTargetMsg = try { (Resolve-Path -LiteralPath $TargetRepo).Path } catch { $TargetRepo }
         Write-Output "Done. Applied $($presetBaselines.Count) baseline(s) from preset '$Name' to $resolvedTargetMsg."
     }
+    "status" {
+        if ($Repos -or $ReposFile) {
+            Invoke-StatusMulti (Get-RepoListFromParams $Repos $ReposFile)
+        } else {
+            Invoke-Status
+        }
+    }
     "shim" {
         if (@("install", "verify", "remove") -notcontains $ShimAction) {
             throw "Unknown shim action: $ShimAction. Use install, verify, or remove."
@@ -347,7 +546,7 @@ switch ($Command) {
             if ($ShimAction -eq "remove") { $bashArgs += "--remove" }
             & bash $shimScript @bashArgs
         } else {
-            $shimScript = Join-Path $scriptDir "baselines\install-shim.ps1"
+            $shimScript = Join-Path $scriptDir "baselines/install-shim.ps1"
             $shimArgs = @{}
             if ($InstallDir) { $shimArgs.InstallDir = $InstallDir }
             if ($AddToUserPath) { $shimArgs.AddToUserPath = $true }

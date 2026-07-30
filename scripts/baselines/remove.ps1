@@ -13,7 +13,7 @@ $ErrorActionPreference = "Stop"
 $toolMap = @{
     codex = "AGENTS.md"
     claude = "CLAUDE.md"
-    copilot = ".github\copilot-instructions.md"
+    copilot = ".github/copilot-instructions.md"
 }
 
 function Read-Utf8Text($Path) {
