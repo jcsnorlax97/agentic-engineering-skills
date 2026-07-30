@@ -17,6 +17,26 @@ confidence, evidence, and promotion decisions in
 `docs/skills-inventory.yaml` (this repo's skills only; split from the frozen
 skillops repo on 2026-07-03).
 
+## Porting Lessons From Employer-Specific Work
+
+Durable technical or process lessons learned during employer-specific work
+(e.g. via that employer's own internal AI-toolkit repo) still have portable
+value and belong here too, in generic form — even though the originating
+work happened in a repo that won't travel to the next employer.
+
+- Keep the underlying technology/process fact: a database engine's locking
+  behavior, a DI framework's registration semantics, a git/PR hygiene habit,
+  a general debugging discipline.
+- Strip employer-specific detail first: company name, internal service or
+  repo names, ticket IDs, proprietary system details, or anything that would
+  identify the employer or its systems.
+- If what remains is genuinely portable, mirror it here even though its
+  twin also lives in an employer-specific toolkit — this repo is the one
+  that survives an employer change, that one doesn't.
+- Never record employer-proprietary information here, even redacted or
+  paraphrased, if there's real doubt about whether it's confidential — leave
+  it out and ask first.
+
 ## Required Context
 
 - Read `CONTEXT.md` before creating, renaming, or substantially changing skills.
