@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:git-collaboration-hygiene v0.3.0 -->
+<!-- BEGIN baseline:git-collaboration-hygiene v0.4.0 -->
 ## Portable Agent Baseline: Git Collaboration Hygiene
 
 - Inspect repository state before changing or committing: check the active branch and working tree when Git is available, especially before edits, staging, commits, pulls, merges, rebases, or pushes.
@@ -7,6 +7,10 @@
 - Base new work on an up-to-date remote base: before creating a branch or opening a PR, fetch and fast-forward the base branch (e.g. `main`) to its remote tip so work starts from current state rather than a stale local ref — a local base branch can lag the remote even after its own PR has merged.
 - Keep remote operations consent-based: do not push, force-push, publish branches, rewrite history, or open PRs unless the user or repo workflow has authorized it.
 - Treat failures and conflicts as evidence: read CI, test, merge, and conflict output before changing code; do not blindly resolve conflicts.
+- Squash an abandoned mid-work detour before the branch's first push (`git reset --soft` + recommit) so pushed history reflects the final approach — never rewrite history that's already been pushed.
+- Redo push-readiness checks (fetch, test-merge against current base, build/lint) immediately before the push itself, not earlier in the session — shared branches move.
+- Before `gh pr create` or any similar authenticated write, verify the CLI's authenticated account matches the target repo's owner/org — a successful `git push` (SSH) doesn't guarantee a separately-authenticated tool targets the right account.
+- Before opening a new branch/PR, check whether one already exists for the same story/ticket and extend it instead, unless the new work genuinely needs independent review. Use `git worktree` to add commits to an existing PR's branch without disturbing an unrelated in-progress checkout.
 
 This baseline takes precedence over ordinary Git habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:git-collaboration-hygiene -->

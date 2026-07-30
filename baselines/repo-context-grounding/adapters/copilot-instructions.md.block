@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:repo-context-grounding v0.2.0 -->
+<!-- BEGIN baseline:repo-context-grounding v0.3.0 -->
 ## Portable Agent Baseline: Repo Context Grounding
 
 - Start from local instructions: read repo-level agent instructions, README, and linked docs that define setup, boundaries, ownership, or workflow.
@@ -8,6 +8,7 @@
 - Follow local patterns: match existing architecture, naming, dependency choices, test style, and documentation style before introducing new structure.
 - Ask after checking available context: do not ask the user to restate repo background until local instructions and visible project context have been inspected.
 - Verify at the right level: run the smallest meaningful repo-native check first, then broaden verification when changes touch shared behavior or public interfaces.
+- Before proposing new process, tooling, or a new skill/repo/governance layer, check whether the repo already documents a build-gate or promotion doctrine (e.g. a "pain twice, dated" rule) and evaluate against it, rather than relying on vague recollection.
 
 Apply this baseline as a startup habit for existing repositories, but never use
 it to override explicit user instructions, safety rules, privacy boundaries, or

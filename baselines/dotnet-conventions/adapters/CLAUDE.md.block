@@ -1,0 +1,9 @@
+<!-- BEGIN baseline:dotnet-conventions v0.1.0 -->
+## Portable Agent Baseline: .NET Conventions
+
+- Use `Add*`, not `TryAdd*`, when registering every implementation of a multi-implementation interface (one resolved as `IEnumerable<T>`, e.g. a strategy pattern) — `TryAdd*` dedups by service type alone and silently no-ops a second implementation, with no error.
+- Don't bake a per-call value (e.g. a host resolved from a DB row) into a pooled/shared DI instance's registration — a typed `HttpClient` (`AddHttpClient<T>()`) assumes a static base URL known at registration time; build the full URI per call instead of setting `BaseAddress` at registration when the real host varies per call.
+- Treat an unexpected scaffold diff (EF Core migration or any codegen tool producing changes beyond the intended edit) as evidence of pre-existing model/config drift, not something you caused. Verify with a throwaway empty re-scaffold; if it reproduces the same diff, fix the root config, never hand-edit the generated output.
+
+Apply this baseline before ordinary .NET DI and codegen habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
+<!-- END baseline:dotnet-conventions -->

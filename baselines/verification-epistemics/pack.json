@@ -1,0 +1,17 @@
+{
+  "name": "verification-epistemics",
+  "version": "0.1.0",
+  "status": "active",
+  "description": "Always-on epistemic discipline: don't act on an inherited, paraphrased, or prior-session claim without re-verifying it against current ground truth.",
+  "source": {
+    "title": "Verification Epistemics Baseline",
+    "repository": "local",
+    "license": "repo-local",
+    "relationship": "Distilled from 2026-07 sessions (cross-repo Carrier/Luna investigation, ambiguous domain-term resolution, a stalled code trace, a misread alignment request) where trusting an inherited or paraphrased claim instead of re-verifying it against source produced a wrong conclusion."
+  },
+  "adapters": {
+    "codex": "adapters/AGENTS.md.block",
+    "claude": "adapters/CLAUDE.md.block",
+    "copilot": "adapters/copilot-instructions.md.block"
+  }
+}

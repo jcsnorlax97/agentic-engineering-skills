@@ -1,7 +1,7 @@
 # Repo Context Grounding
 
 Status: active
-Version: 0.2.0
+Version: 0.3.0
 
 Before meaningful work in an existing repository:
 
@@ -12,6 +12,7 @@ Before meaningful work in an existing repository:
 - Follow local patterns: match existing architecture, naming, dependency choices, test style, and documentation style before introducing new structure.
 - Ask after checking available context: do not ask the user to restate repo background until local instructions and visible project context have been inspected.
 - Verify at the right level: run the smallest meaningful repo-native check first, then broaden verification when changes touch shared behavior or public interfaces.
+- Before proposing new process, tooling, or a new skill/repo/governance layer in a repo, explicitly check whether that repo already documents a build-gate or promotion doctrine (e.g. a "pain twice, dated" rule) and evaluate the proposal against it — rather than relying on vague recollection of whether such a doctrine exists.
 
 ## Priority
 

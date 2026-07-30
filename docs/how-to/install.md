@@ -277,6 +277,13 @@ $env:MSYS = "winsymlinks:nativestrict"
 If neither option is available, keep using copy mode and rerun the copy
 installer after each repository update.
 
+`repair-personal-links.sh` is read-only-detect-then-repair: run it
+periodically as a health check (e.g. after moving or renaming this repo, or
+when a skill seems to be silently missing) rather than only after noticing a
+broken symlink. (Note: 2026-07-23, single occurrence so far — not yet a
+dedicated health-check skill; see `process-vs-work-doctrine` rule 1. Promote
+if this recurs.)
+
 For the portable baseline command shim, PowerShell is the supported Windows
 installer because it creates a `.cmd` wrapper usable from both PowerShell and
 CMD:

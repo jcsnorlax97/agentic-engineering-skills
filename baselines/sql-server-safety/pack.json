@@ -1,0 +1,17 @@
+{
+  "name": "sql-server-safety",
+  "version": "0.1.0",
+  "status": "active",
+  "description": "Always-on SQL Server correctness rules for diagnostic, verification, and data-fix scripts: NOLOCK exceptions, CTE materialization, sargability, and read-only/mutate script discipline.",
+  "source": {
+    "title": "SQL Server Safety Baseline",
+    "repository": "local",
+    "license": "repo-local",
+    "relationship": "Mirrored from es-ai-toolkit's sql-server-safety pack — the underlying facts are SQL Server technical correctness, not employer-specific, so this personal copy applies the same rules to any T-SQL work outside iQmetrix."
+  },
+  "adapters": {
+    "codex": "adapters/AGENTS.md.block",
+    "claude": "adapters/CLAUDE.md.block",
+    "copilot": "adapters/copilot-instructions.md.block"
+  }
+}

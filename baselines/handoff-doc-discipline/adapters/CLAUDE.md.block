@@ -1,0 +1,8 @@
+<!-- BEGIN baseline:handoff-doc-discipline v0.1.0 -->
+## Portable Agent Baseline: Handoff Document Discipline
+
+- Before overwriting a living resume/plan/status document in place, save the pre-overwrite version as a separate file first — unless it's already under real version control where the prior version is trivially recoverable. This does not apply to dated, append-only handoff files (e.g. this repo's `docs/handoffs/` convention), only to a single doc that gets rewritten in place.
+- Before dispatching a long handoff/plan doc to a fresh session or another person, re-read it linearly start-to-finish — not just the latest diff — checking whether an earlier section still says something a later additive correction contradicts.
+
+Apply this baseline before overwriting or dispatching a living plan/resume/status document, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
+<!-- END baseline:handoff-doc-discipline -->

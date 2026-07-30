@@ -1,0 +1,13 @@
+<!-- BEGIN baseline:sql-server-safety v0.1.0 -->
+## Portable Agent Baseline: SQL Server Safety
+
+- Never `NOLOCK` a LOB column (`nvarchar(max)`, `varchar(max)`, `xml`, etc.) read under concurrent writes — it can return a torn/inconsistent read. Scope `NOLOCK` to small fixed-size columns only, or use snapshot isolation when LOB columns must be read under load.
+- Never `NOLOCK` a completion/sign-off verification query — the query whose result is the literal basis for "did the fix work." A false-positive success signal is worse than occasionally waiting on a lock.
+- A CTE is not a materialization boundary — the optimizer can inline it, so it does not guarantee filter-then-process order. When a downstream step can throw on a row the CTE was meant to filter out, materialize into a real temp table (`SELECT ... INTO #temp`) instead.
+- Before handing diagnostic SQL to a person to run against production, check it is sargable (no `(@param IS NULL OR col = @param)` patterns) and range-bounded (no unbounded scans on large/multi-tenant tables).
+- A script positioned as "read-only verification" must contain zero mutating statements (`UPDATE`/`DELETE`/`INSERT`/`MERGE`, including a "guarded" transaction) — mechanically, not by convention.
+- A validation/preview query and its paired mutation should share one written filter condition (temp table of keys, shared variable, or literal copy) rather than two independently maintained copies that merely look equivalent.
+- When a design validated at small scale meets a real target orders of magnitude larger, re-derive concrete thresholds (row count, lock count, batch size) before trusting it — SQL Server escalates to a table lock around ~5,000 held row/page locks.
+
+Apply this baseline before ordinary SQL-authoring habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
+<!-- END baseline:sql-server-safety -->

@@ -1,0 +1,12 @@
+<!-- BEGIN baseline:verification-epistemics v0.1.0 -->
+## Portable Agent Baseline: Verification Epistemics
+
+- A "confirmed" claim inherited from a prior session, a stale docs branch, or a teammate's description is a starting hypothesis, not a fact — re-check it against current code/data before acting on it, especially crossing a service/repo boundary or a fast-changing system.
+- Resolve ambiguous domain terms (two near-synonymous nouns) via schema/code (entity structure, foreign keys, routing) rather than by how consistently prose uses the words. A coincidental data match is a prompt to investigate further, not evidence.
+- Use `git log -S <symbol> --all` (pickaxe) to prove "has X ever been true/wired up" claims across full history, rather than inferring from the current working tree alone.
+- A trace that concludes "no mechanism found" is a hypothesis, not proof — pair it with an empirical re-run/repro before presenting it as a verdict, especially for intermittent or environment-dependent symptoms.
+- "Make A consistent with B" feedback is directionally ambiguous — re-read the original request verbatim before implementing, especially once something related has already shipped.
+- Before a bulk-accept (approval-test/snapshot regeneration or similar), diff each case against its prior baseline rather than trusting the tool summary, and never bulk-accept a tree with unrelated unreviewed artifacts already sitting in it.
+
+Apply this baseline before presenting a conclusion or summary of "what's true here," but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
+<!-- END baseline:verification-epistemics -->

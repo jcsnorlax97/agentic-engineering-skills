@@ -1,6 +1,6 @@
 {
   "name": "repo-context-grounding",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "status": "active",
   "description": "Always-on startup posture for AI coding agents entering an existing repository: read local instructions, inspect context, discover workflows, respect boundaries, and verify with repo-native checks.",
   "source": {

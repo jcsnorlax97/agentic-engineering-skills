@@ -25,6 +25,10 @@ repo-specific instructions.
 | `process-vs-work-doctrine` | active | Adjudication gate for adding process versus doing the work: pain before process, kill a layer to add a layer, minimal form before third real use, write-only records die, frozen means frozen, meta-session quota. |
 | `vercel-operations` | active | Operational habits for projects deployed to Vercel: use CLI for observability, check logs before reporting errors, know the production-branch API shape, stable per-branch preview domain approach, Deployment Protection default, and vercel link file variants. |
 | `supabase-operations` | active | Operational habits for projects using Supabase: diagnose read-only first, never write to shared data without explicit authorization, check process env before editing config, magic-link allowlist requirements, Auth password storage model. |
+| `sql-server-safety` | active | SQL Server correctness for diagnostic/verification/data-fix scripts: NOLOCK exceptions (LOB columns, verification queries), CTEs are not a materialization boundary, sargable diagnostics, read-only-must-not-mutate, shared validate/mutate predicate, reassess design at new scale. |
+| `dotnet-conventions` | active | .NET/C# DI registration traps (`TryAdd*` dedup, typed-`HttpClient` static base URL) and treating an unexpected codegen/scaffold diff as pre-existing drift, not something you caused. |
+| `verification-epistemics` | active | Don't act on an inherited/paraphrased claim without re-verifying against ground truth: schema-not-prose for ambiguous domain terms, `git log -S` pickaxe, empirical repro before a "no mechanism found" verdict, re-read the original ask, diff-before-bulk-accept. |
+| `handoff-doc-discipline` | active | Lifecycle discipline for a living (in-place-edited) handoff/resume/plan document: archive the prior version before overwriting, re-read linearly for self-contradiction before dispatching. |
 
 ## Pack Shape
 

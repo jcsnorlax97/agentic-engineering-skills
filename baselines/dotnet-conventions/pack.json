@@ -1,0 +1,17 @@
+{
+  "name": "dotnet-conventions",
+  "version": "0.1.0",
+  "status": "active",
+  "description": "Always-on .NET/C# conventions covering DI registration traps and codegen/scaffold drift discipline.",
+  "source": {
+    "title": ".NET Conventions Baseline",
+    "repository": "local",
+    "license": "repo-local",
+    "relationship": "Mirrored from es-ai-toolkit's dotnet-conventions pack — the DI-registration and codegen-drift facts are .NET-technical, not employer-specific, so this personal copy applies to any .NET work outside iQmetrix."
+  },
+  "adapters": {
+    "codex": "adapters/AGENTS.md.block",
+    "claude": "adapters/CLAUDE.md.block",
+    "copilot": "adapters/copilot-instructions.md.block"
+  }
+}

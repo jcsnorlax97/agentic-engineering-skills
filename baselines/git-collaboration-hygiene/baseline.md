@@ -1,7 +1,7 @@
 # Git Collaboration Hygiene Baseline
 
 Status: active
-Version: 0.3.0
+Version: 0.4.0
 
 This is a tool-neutral always-on baseline for AI coding agents working in Git
 repositories. It captures collaboration safety that should apply before
@@ -39,6 +39,33 @@ workflow-specific PR, release, deploy, or multi-agent procedures.
    rather than a stale local ref. A local base branch can lag the remote even
    after its own PR has merged; sync it before branching instead of assuming it
    is current.
+
+7. Squash an abandoned mid-work detour before the first push.
+   If the implementation approach changed mid-session — an abandoned design
+   was tried, then replaced — squash the abandoned attempt out of history
+   (`git reset --soft` + recommit) before the branch's first push, so the
+   pushed history reflects the final approach. Never do this once anything on
+   the branch has already been pushed; rewrite only unpushed local history.
+
+8. Redo push-readiness checks immediately before pushing, not earlier.
+   Re-run fetch, a test-merge against the current base, and build/lint
+   immediately before the push itself rather than trusting a check done
+   earlier in the session — shared branches move, and an earlier "looks
+   ready" can go stale by the time you actually push.
+
+9. Verify the authenticated identity before a hosted-platform write.
+   Before `gh pr create` (or any similar authenticated write operation),
+   verify the CLI's authenticated account matches the target repo's
+   owner/org. A successful `git push` (SSH-authenticated) does not guarantee
+   a separately-authenticated tool's session will target the right account.
+
+10. Reuse an existing open PR for the same story instead of opening a new
+    one.
+    Before opening a new branch/PR, check whether one already exists for the
+    same story/ticket — extend it rather than forking a new one, unless the
+    new work genuinely needs independent review. Use `git worktree` to add
+    commits to an existing PR's branch without disturbing an unrelated
+    in-progress checkout on the same branch.
 
 ## Priority
 
