@@ -67,6 +67,31 @@ workflow-specific PR, release, deploy, or multi-agent procedures.
     commits to an existing PR's branch without disturbing an unrelated
     in-progress checkout on the same branch.
 
+11. When a merge conflict is modify/delete against an unrelated large
+    rewrite, read the new structure first.
+    If the conflict is modify/delete and the deleting side is an unrelated
+    large rewrite (module migration, language port, big rename), read that
+    rewrite's diff and new conventions before writing any port code — treat
+    the rewrite as the spec for "how things are organized now" rather than
+    porting the old logic in as-is.
+
+12. When a destructive command is blocked by the safety classifier, look for
+    a non-destructive path to the same end state.
+    A blocked `git reset --hard` on a shared branch can often be replaced by
+    moving a non-checked-out branch's pointer directly (`git branch -f
+    <branch> <ref>`); a blocked hard reset when squashing commits can often
+    be replaced by `git rm` + `git reset --soft` (index/HEAD only, working
+    tree untouched). Prefer finding the non-destructive equivalent over
+    trying to force the original command through.
+
+13. Restate a merge's direction explicitly if a related action just drew a
+    correction.
+    "Merge X into Y" and "merge Y into X" have very different blast radii,
+    and shorthand descriptions of the two look alike. If the user has just
+    corrected a related action (e.g. an unnecessary new branch), don't assume
+    the next merge-shaped command's direction is obviously understood —
+    restate which way it goes before running it.
+
 ## Priority
 
 This baseline takes precedence over ordinary Git habits, but never use it to override

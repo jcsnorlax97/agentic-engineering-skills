@@ -11,6 +11,9 @@
 - Redo push-readiness checks (fetch, test-merge against current base, build/lint) immediately before the push itself, not earlier in the session — shared branches move.
 - Before `gh pr create` or any similar authenticated write, verify the CLI's authenticated account matches the target repo's owner/org — a successful `git push` (SSH) doesn't guarantee a separately-authenticated tool targets the right account.
 - Before opening a new branch/PR, check whether one already exists for the same story/ticket and extend it instead, unless the new work genuinely needs independent review. Use `git worktree` to add commits to an existing PR's branch without disturbing an unrelated in-progress checkout.
+- When a merge conflict is modify/delete against an unrelated large rewrite (module migration, language port, big rename), read that rewrite's diff and new conventions before writing any port code, rather than porting the old logic in as-is.
+- When a destructive command is blocked by the safety classifier, look for a non-destructive path to the same end state (e.g. `git branch -f <branch> <ref>` instead of a hard reset on a non-checked-out branch; `git rm` + `git reset --soft` instead of a hard reset when squashing).
+- If the user just corrected a related action, restate a merge's direction ("merge X into Y" vs. "merge Y into X" have very different blast radii) before running the next merge-shaped command.
 
 This baseline takes precedence over ordinary Git habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:git-collaboration-hygiene -->
