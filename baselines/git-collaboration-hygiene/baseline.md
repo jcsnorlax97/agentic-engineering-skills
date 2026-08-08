@@ -1,7 +1,7 @@
 # Git Collaboration Hygiene Baseline
 
 Status: active
-Version: 0.4.1
+Version: 0.5.0
 
 This is a tool-neutral always-on baseline for AI coding agents working in Git
 repositories. It captures collaboration safety that should apply before
@@ -91,6 +91,35 @@ workflow-specific PR, release, deploy, or multi-agent procedures.
     corrected a related action (e.g. an unnecessary new branch), don't assume
     the next merge-shaped command's direction is obviously understood —
     restate which way it goes before running it.
+
+14. Cross-diff overlapping branches against each other during review, not
+    just each against base.
+    When reviewing a PR while holding or knowing about a second concurrently
+    open, unmerged branch that touches the same file, class, or config/data
+    surface, diff the overlapping files from the two branches directly
+    against each other, not just each against the shared base — this
+    surfaces semantic conflicts that a base-only diff never shows, since both
+    branches can look individually clean in isolation.
+
+15. Reconstruct cross-host PR history from local clones via `git log --all
+    --grep` on merge commits instead of paginating each host's API.
+    When a repo is already cloned locally and the hosting platform's
+    PR-listing API only supports listing/pagination rather than full-text
+    search, filter merge commits by keyword instead — this works identically
+    across GitHub, Azure DevOps, and other hosts that embed the PR title in
+    the merge commit message, though it breaks down for squash-merge or
+    rebase-only workflows with no distinct merge commit.
+
+16. Verify via `git log` and `git merge-base --is-ancestor` against the
+    actual remote, not memory, whether a prior round's related work has
+    merged before branching for follow-up work.
+    If that related work is still unmerged (an open PR, an unreviewed
+    branch), branch from that unmerged branch instead of the default base
+    branch.
+
+17. Consider a long-lived, never-merged notes/diagrams branch when the team
+    already has that convention, mirroring its existing structure rather
+    than inventing a new one.
 
 ## Priority
 

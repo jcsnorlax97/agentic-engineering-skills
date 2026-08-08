@@ -1,7 +1,7 @@
 # Repo Context Grounding
 
 Status: active
-Version: 0.3.0
+Version: 0.3.1
 
 Before meaningful work in an existing repository:
 
@@ -13,6 +13,7 @@ Before meaningful work in an existing repository:
 - Ask after checking available context: do not ask the user to restate repo background until local instructions and visible project context have been inspected.
 - Verify at the right level: run the smallest meaningful repo-native check first, then broaden verification when changes touch shared behavior or public interfaces.
 - Before proposing new process, tooling, or a new skill/repo/governance layer in a repo, explicitly check whether that repo already documents a build-gate or promotion doctrine (e.g. a "pain twice, dated" rule) and evaluate the proposal against it — rather than relying on vague recollection of whether such a doctrine exists.
+- Check for a local copy before asking to re-supply: when a chat or integration tool can only describe an attachment (filename, size, metadata) but cannot fetch or render its content, check whether the same file already exists on local disk before asking the user to re-supply it.
 
 ## Priority
 

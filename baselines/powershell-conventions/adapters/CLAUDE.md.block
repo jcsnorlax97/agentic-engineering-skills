@@ -1,0 +1,7 @@
+<!-- BEGIN baseline:powershell-conventions v0.1.0 -->
+## Portable Agent Baseline: PowerShell Conventions
+
+- Wrap any PowerShell function call that can return zero, one, or many items in `@(...)` at every call site (`$x = @(Get-Something ...)`). Never rely on a function's own `return $collection` statement to guarantee array-typed output across the call boundary — PowerShell silently unwraps a single-element array to a scalar, string or object alike. `pwsh` 7+'s synthetic scalar `.Count`/`.Length` convenience can mask exactly this bug, so never treat "works under `pwsh`" as evidence a script works under Windows PowerShell 5.1 for any code path with scalar-vs-array ambiguity; test 0/1/many explicitly on every version the script must support.
+- Never embed a literal `\` inside a single string argument standing in for multiple path segments (e.g. `Join-Path $root "baselines\$Pack"`) in any script meant to run under `pwsh` on more than one OS. macOS/Linux `pwsh` treats an embedded backslash as a literal character, not a separator, silently producing a malformed path component. Use forward slashes (`/`) or pass each segment as its own `Join-Path` argument instead.
+- Apply this baseline before ordinary PowerShell scripting habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
+<!-- END baseline:powershell-conventions -->

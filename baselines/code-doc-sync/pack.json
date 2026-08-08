@@ -1,6 +1,6 @@
 {
   "name": "code-doc-sync",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "status": "active",
   "description": "Always-on doc hygiene for AI coding agents: scan for adjacent architecture docs before closing any behavior-changing task, and show concrete runtime types in flow diagrams rather than abstract declaration sites.",
   "origin": {

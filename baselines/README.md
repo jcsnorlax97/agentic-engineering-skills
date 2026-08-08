@@ -14,13 +14,13 @@ repo-specific instructions.
 | Pack | Status | Purpose |
 |---|---|---|
 | `repo-context-grounding` | active | Apply default startup habits for existing repositories: read local instructions, inspect context, discover workflows, respect boundaries, and verify with repo-native checks. |
-| `git-collaboration-hygiene` | active | Apply default Git collaboration safety: inspect status, protect user changes, stage explicit paths, review diffs, base new work on an up-to-date remote base, and avoid unsafe remote or conflict handling. |
+| `git-collaboration-hygiene` | active | Apply default Git collaboration safety: inspect status, protect user changes, stage explicit paths, review diffs, base new work on an up-to-date remote base, avoid unsafe remote or conflict handling, cross-diff overlapping branches during review, and verify prior related work is merged before branching. |
 | `commit-conventions` | active | Write every commit in the Conventional Commits format: `<type>(scope): description` with an imperative <=72-char subject, a body that explains why, and issue/work-item footer references. |
 | `branch-naming` | active | Name every new branch `<type>/<optional-tracking-id>-<short-kebab-description>`, sharing the Conventional Commits type vocabulary so branches and commit subjects rhyme; bare tracking id, lowercase kebab-case, single slash. |
-| `pr-description` | active | Fill a repo's PR template when present, else write a Conventional Commits title and a body covering what, why, testing, and risk; platform-correct linking (`!` for a PR on Azure DevOps) and no AI attribution. |
+| `pr-description` | active | Fill a repo's PR template when present, else write a Conventional Commits title and a body covering what, why, testing, and risk; platform-correct linking (`!` for a PR on Azure DevOps), bolded-label point form for decision-heavy content, and no AI attribution. |
 | `karpathy-principles` | active | Apply four default engineering principles: think before coding, simplicity first, surgical changes, and goal-driven execution. |
 | `oop-extension-safety` | active | Guards for OOP extension points: complete template methods, prefer primitive hook parameters, and mock concrete injected types in tests. |
-| `code-doc-sync` | active | Scan for adjacent architecture docs before closing any behavior-changing task; show concrete runtime types in flow diagrams rather than abstract declaration sites. |
+| `code-doc-sync` | active | Scan for adjacent architecture docs before closing any behavior-changing task; show concrete runtime types in flow diagrams rather than abstract declaration sites; check the target repo's own decision records before recommending a sibling-repo pattern; scope each ADR to one decision; tag verification status on claims in mixed current/target-design docs. |
 | `layered-ownership` | active | Keep decision records in the layer that owns them: cross-layer references are pointers not ownership, and no repo becomes a central governance hub. |
 | `process-vs-work-doctrine` | active | Adjudication gate for adding process versus doing the work: pain before process, kill a layer to add a layer, minimal form before third real use, write-only records die, frozen means frozen, meta-session quota. |
 | `vercel-operations` | active | Operational habits for projects deployed to Vercel: use CLI for observability, check logs before reporting errors, know the production-branch API shape, stable per-branch preview domain approach, Deployment Protection default, and vercel link file variants. |
@@ -29,6 +29,7 @@ repo-specific instructions.
 | `dotnet-conventions` | active | .NET/C# DI registration traps (`TryAdd*` dedup, typed-`HttpClient` static base URL) and treating an unexpected codegen/scaffold diff as pre-existing drift, not something you caused. |
 | `verification-epistemics` | active | Don't act on an inherited/paraphrased claim without re-verifying against ground truth: schema-not-prose for ambiguous domain terms, `git log -S` pickaxe, empirical repro before a "no mechanism found" verdict, re-read the original ask, diff-before-bulk-accept. |
 | `handoff-doc-discipline` | active | Lifecycle discipline for a living (in-place-edited) handoff/resume/plan document: archive the prior version before overwriting, re-read linearly for self-contradiction before dispatching. |
+| `powershell-conventions` | active | `@()`-wrap any call to a function returning a variable-count collection at every call site; never embed a literal backslash inside a joined PowerShell path string meant to run cross-platform. |
 
 ## Pack Shape
 

@@ -1,7 +1,7 @@
 # PR Description Baseline
 
 Status: active
-Version: 0.1.0
+Version: 0.2.0
 
 This is a tool-neutral always-on baseline for AI coding agents that open pull
 requests in a repository. It sets the *content* of the PR: a title a reviewer
@@ -68,6 +68,14 @@ section only when it genuinely does not apply.
 4. Keep it proportional.
    A one-line typo fix needs a sentence, not four headed sections. Scale the
    body to the size and risk of the change.
+
+5. Default decision-heavy content to bolded-label point form, not prose.
+   When a section is genuinely a list of discrete points — changes, decisions,
+   reasons — use short bolded labels (e.g. **Why:**, **Risk:**, **Note:**)
+   instead of narrative paragraphs, so a reviewer can scan it in seconds.
+   Reserve connected prose for a genuine narrative a label would fragment,
+   such as walking through a bug's causal chain. Decide by the content's
+   structure, not by the section's length or the PR's overall size.
 
 ## Example
 

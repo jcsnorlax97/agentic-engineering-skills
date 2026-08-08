@@ -1,6 +1,6 @@
 {
   "name": "dotnet-conventions",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "status": "active",
   "description": "Always-on .NET/C# conventions covering DI registration traps and codegen/scaffold drift discipline.",
   "source": {

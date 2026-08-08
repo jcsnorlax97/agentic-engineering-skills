@@ -1,7 +1,7 @@
 # .NET Conventions Baseline
 
 Status: active
-Version: 0.1.0
+Version: 0.2.0
 
 Always-on .NET/C# conventions for dependency-injection registration and
 codegen/scaffold output. Distilled from 2026-07 EpinServer work where DI
@@ -35,6 +35,43 @@ scaffolded EF Core migration surfaced changes the agent hadn't caused.
    throwaway empty re-scaffold — if it reproduces the same unrelated diff, fix
    the root model/config, not the generated output. Never hand-edit the
    generated file to remove the unexpected parts.
+
+4. Implement a cross-cutting concern (audit, retry, validation) as a handler
+   registered into an existing pipeline seam, not an opt-in helper method call
+   sites must remember to invoke.
+
+5. Place a cross-cutting `DelegatingHandler` relative to a retry handler
+   deliberately — inside retry observes physical attempts, outside retry
+   observes logical calls.
+
+6. When chaining into a different library's fluent builder mid-pipeline,
+   don't cast its return type back — call it as a standalone statement and
+   return your own original reference.
+
+7. A fire-and-forget async operation must own its own DI scope, its own
+   `CancellationToken.None`, and its own exception handling — never inherit
+   any of the three from its trigger.
+
+8. A nullable foreign-key column meaning "no associated record" must receive
+   a real `null` end-to-end, never a sentinel or randomly-generated value.
+
+9. In a migration's raw `InsertData`/`DeleteData`/`UpdateData` column
+   literals, use the schema's original column casing, never the C# entity
+   property's casing.
+
+10. Before a Singleton reaches for `IServiceScopeFactory.CreateScope()` to
+    get a fresh handle to a shorter-lived resource, check for a
+    purpose-built factory for that resource type first (e.g.
+    `IHttpClientFactory`), and use manual scope creation only when none
+    exists.
+
+11. Register a `DelegatingHandler` shared across more than one typed
+    `HttpClient` via `AddHttpMessageHandler<T>()` as Transient, never
+    Singleton.
+
+12. When two options classes bind the same config section, treat one reading
+    a property from the other instead of owning its own as a design smell
+    to flag during implementation.
 
 ## Priority
 

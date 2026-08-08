@@ -69,6 +69,39 @@ skills:
       up, then review whether the trigger and workflow have enough evidence
       for active status.
 
+  - id: baseline-gap-review
+    name: Baseline Gap Review
+    status: candidate
+    confidence: emerging
+    distribution: personal
+    trigger: >
+      Use when the user asks to review the improvements backlog, reconcile
+      `_Improvements/`, do a baseline gap review, or check if anything needs
+      promoting from `_Improvements` into either toolkit.
+    canonical_repo: ai-toolkit
+    canonical_path: skills/engineering/baseline-gap-review/SKILL.md
+    owner: Justin
+    last_reviewed: "2026-08-07"
+    evidence:
+      - date: "2026-08-07"
+        type: first-real-use
+        notes: >
+          Built on the second dated occurrence of "_Improvements/ piled up
+          with no review cadence and needed a full reconciliation pass"
+          (occurrence #1: 2026-07-29, see
+          _Improvements/Done/2026-07-29-baseline-consolidation-manifest.md;
+          occurrence #2: 2026-08-07, 41 new notes). Clears
+          process-vs-work-doctrine rule 1 (pain recurring twice, dated).
+          Kept single-file per rule 3 pending a third real use. Hardcodes
+          this machine's `_Improvements`, `es-ai-toolkit`, and `ai-toolkit`
+          paths per Justin's own standing offer in the candidate note.
+    next_action: >
+      If a third dated occurrence of the backlog-review pain shows up, first
+      ask why the review cadence keeps breaking down (unreviewed for N
+      weeks? backlog crossed a size threshold? a missed note caused a repeat
+      mistake?) before deciding whether this skill needs an earlier or
+      automatic trigger rather than staying purely manually-invoked.
+
   - id: client-flow-diagrams
     name: Client Flow Diagrams
     status: candidate

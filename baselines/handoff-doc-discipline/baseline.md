@@ -1,7 +1,7 @@
 # Handoff Document Discipline Baseline
 
 Status: active
-Version: 0.1.0
+Version: 0.2.0
 
 Always-on lifecycle discipline for a **living snapshot document** — a plan,
 implementation status doc, or "paste this to resume" prompt that gets
@@ -31,6 +31,35 @@ gets edited in place across a session or across sessions.
    start-to-finish as a single linear document — not just the latest diff —
    specifically checking whether an earlier section still says something a
    later correction contradicts.
+
+3. Recheck a deferred fix's blast-radius scope at each newly-discovered call
+   site rather than treating "already deferred" as a blanket exemption.
+   A fix deferred for blast-radius reasons (too many call sites, unknown
+   downstream dependents) is deferred because of that reasoning, not because
+   of every call site that happens to share the same mechanism. When later
+   work touches a specific site, recheck whether the original blast-radius
+   concern actually applies there — fix it now if the site is inside the
+   current work's own scope, and treat it as still deferred if that's
+   ambiguous.
+
+4. Hand over the literal, copy-pasteable command when recommending a
+   destructive or rollback action for someone else to execute, never a
+   paraphrased target.
+   Describing only the target state ("roll back to migration X") lets a
+   paraphrase drop the exact command and a substitution error silently swap
+   in a catastrophic scope; give the literal command string, call out the
+   real-world meaning of any special or sentinel argument (a `0` that means
+   "roll back everything," not "do nothing"), and ask for the exact command
+   to be read back before it runs when the handoff is asynchronous.
+
+5. When spinning off a deferred or generalized finding into a new backlog
+   item, write falsifiable acceptance criteria, state the boundary case
+   explicitly, and flag open design decisions as open.
+   Point the background at the origin discussion instead of re-pasting the
+   analysis, phrase acceptance criteria so they can only pass if the real
+   behavior changed (not a narrow or synthetic test), state what must NOT
+   happen alongside what must, and list genuinely undecided design questions
+   as open rather than resolving them on the implementer's behalf.
 
 ## Priority
 
