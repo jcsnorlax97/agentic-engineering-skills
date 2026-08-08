@@ -1,9 +1,18 @@
-<!-- BEGIN baseline:dotnet-conventions v0.1.0 -->
+<!-- BEGIN baseline:dotnet-conventions v0.2.0 -->
 ## Portable Agent Baseline: .NET Conventions
 
 - Use `Add*`, not `TryAdd*`, when registering every implementation of a multi-implementation interface (one resolved as `IEnumerable<T>`, e.g. a strategy pattern) — `TryAdd*` dedups by service type alone and silently no-ops a second implementation, with no error.
 - Don't bake a per-call value (e.g. a host resolved from a DB row) into a pooled/shared DI instance's registration — a typed `HttpClient` (`AddHttpClient<T>()`) assumes a static base URL known at registration time; build the full URI per call instead of setting `BaseAddress` at registration when the real host varies per call.
 - Treat an unexpected scaffold diff (EF Core migration or any codegen tool producing changes beyond the intended edit) as evidence of pre-existing model/config drift, not something you caused. Verify with a throwaway empty re-scaffold; if it reproduces the same diff, fix the root config, never hand-edit the generated output.
+- Implement a cross-cutting concern (audit, retry, validation) as a handler registered into an existing pipeline seam, not an opt-in helper method call sites must remember to invoke.
+- Place a cross-cutting `DelegatingHandler` relative to a retry handler deliberately — inside retry observes physical attempts, outside retry observes logical calls.
+- When chaining into a different library's fluent builder mid-pipeline, don't cast its return type back — call it as a standalone statement and return your own original reference.
+- A fire-and-forget async operation must own its own DI scope, its own `CancellationToken.None`, and its own exception handling — never inherit any of the three from its trigger.
+- A nullable foreign-key column meaning "no associated record" must receive a real `null` end-to-end, never a sentinel or randomly-generated value.
+- In a migration's raw `InsertData`/`DeleteData`/`UpdateData` column literals, use the schema's original column casing, never the C# entity property's casing.
+- Before a Singleton reaches for `IServiceScopeFactory.CreateScope()` to get a fresh handle to a shorter-lived resource, check for a purpose-built factory for that resource type first (e.g. `IHttpClientFactory`), and use manual scope creation only when none exists.
+- Register a `DelegatingHandler` shared across more than one typed `HttpClient` via `AddHttpMessageHandler<T>()` as Transient, never Singleton.
+- When two options classes bind the same config section, treat one reading a property from the other instead of owning its own as a design smell to flag during implementation.
 
 Apply this baseline before ordinary .NET DI and codegen habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:dotnet-conventions -->

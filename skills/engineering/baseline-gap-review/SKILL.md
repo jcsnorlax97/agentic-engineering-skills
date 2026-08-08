@@ -108,6 +108,26 @@ mechanically filing by "which employer's session produced this."
   verify structural completeness, and push. No PR, no review gate — this is
   a personal repo.
 
+For every existing baseline that gets NEW principles added (not brand-new
+baselines — those get fresh adapters as part of creating them), a
+`baseline.md` edit is not the whole job. Two derived artifacts drift out of
+sync if left untouched, and occurrence #2 shipped both mistakes at first:
+
+- **`pack.json`**'s `version` field — bump it to match `baseline.md`'s
+  `Version:` header in the same edit, not as a follow-up pass.
+- **`adapters/{CLAUDE.md,AGENTS.md,copilot-instructions.md}.block`** — these
+  are the condensed renderings that actually get installed into a consuming
+  repo's instruction files via `baseline apply`. They do not auto-update
+  when `baseline.md` changes. Rewrite all three (check they're byte-identical
+  to each other first — they have been every time so far — and if so, treat
+  them as one edit copied three ways) to reflect the *complete current*
+  principle list, not just the new ones, and bump their `<!-- BEGIN
+  baseline:<name> vX.Y.Z -->` marker to match. Then check `baseline status`
+  in that repo: if the pack shows as already `YES` (applied), re-run
+  `baseline apply <name>` so the repo's own installed instruction files pick
+  up the fix immediately rather than staying stale until someone happens to
+  re-apply it later.
+
 ### 6. Archive every processed source file
 
 Move every file this pass touched — including `not-actionable` ones — into
