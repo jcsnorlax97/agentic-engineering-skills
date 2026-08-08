@@ -63,6 +63,25 @@ hygiene, Azure DevOps hygiene, verification epistemics, handoff-doc
 discipline, etc.) and check whether the candidate note's point is already
 covered, partially covered, or a genuine gap. Only genuine gaps get written.
 
+List every baseline directory in BOTH repos directly (`ls baselines/` in
+each, not a remembered list) before doing anything else — occurrence #2's
+own survey missed that `es-ai-toolkit` already had its own
+`git-collaboration-hygiene` fork, stuck 4 minor versions behind
+`ai-toolkit`'s, purely because a stale mental list stood in for actually
+checking. For every baseline name that exists in **both** repos, diff their
+`baseline.md` principle lists against each other, independent of whether
+`_Improvements` has anything to say about that topic this round — same-named
+packs are not guaranteed to be intentional mirrors (some are; some are
+accidental leftovers from unrelated tooling work), and drift between them
+should surface as its own finding either way, not stay silent until someone
+happens to notice.
+
+Same-named packs across the two repos are versioned **independently**, not
+in lockstep — that's correct, not a bug to "fix" by forcing matching version
+numbers. What actually needs tracking is provenance (record it in the drifted
+pack's `pack.json` `source.relationship` field when you resync one) and
+periodic drift-detection (this step), not synchronized version counters.
+
 ### 3. Cross-check every skill-candidate against `process-vs-work-doctrine` rule 1
 
 For each note classified as a skill-candidate, use the note's own embedded
