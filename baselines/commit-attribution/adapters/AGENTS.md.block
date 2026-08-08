@@ -1,0 +1,11 @@
+<!-- BEGIN baseline:commit-attribution v0.1.0 -->
+## Portable Agent Baseline: Commit Attribution
+
+- Do not add a `Co-Authored-By: Claude ...` trailer, any other `Co-Authored-By:` line naming an AI, or equivalent co-author metadata to commit messages.
+- Do not append "Generated with Claude Code", "Made with <AI>", or similar tool-advertising footers to commits.
+- When it is useful to record that a change was AI-assisted, note it in one short prose line in the commit body (e.g. "Assisted by Claude.") rather than a structured co-author trailer.
+- Keep the commit subject and body focused on the change itself; attribution is never the headline and never more than a brief note.
+- This governs attribution only. Still write descriptive messages, stage explicit paths, and review the staged diff before committing.
+
+Apply this baseline before ordinary commit habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions (including a repo convention or user request that explicitly asks for a co-author trailer).
+<!-- END baseline:commit-attribution -->

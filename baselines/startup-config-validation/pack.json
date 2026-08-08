@@ -1,0 +1,17 @@
+{
+  "name": "startup-config-validation",
+  "version": "0.1.0",
+  "status": "active",
+  "description": "Always-on fail-fast posture: read and validate all required configuration values at app startup so misconfiguration surfaces immediately rather than on the first live request.",
+  "source": {
+    "title": "Startup Config Validation Baseline",
+    "repository": "local",
+    "license": "repo-local",
+    "relationship": "Mirrored from es-ai-toolkit's startup-config-validation pack — the four validate-at-startup principles are generic ASP.NET Core/.NET practice, not employer-specific, so this personal copy applies to any .NET service work outside iQmetrix."
+  },
+  "adapters": {
+    "codex": "adapters/AGENTS.md.block",
+    "claude": "adapters/CLAUDE.md.block",
+    "copilot": "adapters/copilot-instructions.md.block"
+  }
+}

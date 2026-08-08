@@ -1,0 +1,17 @@
+{
+  "name": "commit-attribution",
+  "version": "0.1.0",
+  "status": "active",
+  "description": "Always-on commit attribution policy for AI coding agents: never add a Co-Authored-By AI trailer or 'Generated with' footer to commits; if AI assistance is worth noting, mention it in one short prose line instead.",
+  "source": {
+    "title": "Commit Attribution Baseline",
+    "repository": "local",
+    "license": "repo-local",
+    "relationship": "Mirrored from es-ai-toolkit's commit-attribution pack — the trailer/footer attribution rules are tool-neutral and not employer-specific, so this personal copy applies to any repository outside iQmetrix work."
+  },
+  "adapters": {
+    "codex": "adapters/AGENTS.md.block",
+    "claude": "adapters/CLAUDE.md.block",
+    "copilot": "adapters/copilot-instructions.md.block"
+  }
+}

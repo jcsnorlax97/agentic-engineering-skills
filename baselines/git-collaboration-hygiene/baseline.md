@@ -1,7 +1,7 @@
 # Git Collaboration Hygiene Baseline
 
 Status: active
-Version: 0.5.0
+Version: 0.6.0
 
 This is a tool-neutral always-on baseline for AI coding agents working in Git
 repositories. It captures collaboration safety that should apply before
@@ -120,6 +120,23 @@ workflow-specific PR, release, deploy, or multi-agent procedures.
 17. Consider a long-lived, never-merged notes/diagrams branch when the team
     already has that convention, mirroring its existing structure rather
     than inventing a new one.
+
+18. Before scoping a work item that is one of several siblings under a
+    shared parent, check every sibling's assignee and state.
+    In any hierarchical issue tracker (Jira, Linear, GitHub Projects, Azure
+    DevOps, etc.), query the parent's other child items before committing to
+    a scope. If a sibling is already actively covering overlapping work,
+    narrow your own scope rather than duplicating it — even if that means
+    shipping less than the full item.
+
+19. Reference a work item's own ID in commit messages and branch names, not
+    its parent's.
+    In a hierarchical tracker, a commit or branch reference should point to
+    the specific item you are actually working (the story, task, or bug),
+    not the parent epic or feature. Referencing the wrong level causes the
+    tracker's auto-link to attach the change to the parent instead of the
+    child, making the real item look untouched in status reports and
+    dashboards.
 
 ## Priority
 

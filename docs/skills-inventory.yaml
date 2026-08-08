@@ -102,6 +102,81 @@ skills:
       mistake?) before deciding whether this skill needs an earlier or
       automatic trigger rather than staying purely manually-invoked.
 
+  - id: diagnose-migration-history-divergence
+    name: Diagnose Migration-History Divergence
+    status: trial
+    confidence: emerging
+    distribution: personal
+    trigger: >
+      Use when an EF Core deploy or rollback against a shared environment
+      surfaces a "migration was not found" error, or before running
+      Update-Database / dotnet ef database update against a shared
+      environment as a rollback.
+    canonical_repo: ai-toolkit
+    canonical_path: skills/engineering/diagnose-migration-history-divergence/SKILL.md
+    owner: Justin
+    last_reviewed: "2026-08-08"
+    evidence:
+      - date: "2026-08-08"
+        type: sanitized-mirror
+        notes: >
+          Sanitized, portable mirror of the es-ai-toolkit skill of the same
+          name (canonical_repo es-ai-toolkit, status experimental there,
+          built from two dated incidents on a company codebase). Ported here
+          with employer-identifying specifics removed (company name,
+          internal branch/ticket IDs, named individuals, internal
+          environment names) while keeping the EF Core
+          __EFMigrationsHistory comparison technique, the `dotnet ef
+          migrations list` step, the git-forensics trace
+          (`git log --all --diff-filter=A`, `git merge-base
+          --is-ancestor`, `git branch --all --contains`), the Up/Down
+          risk-classification approach, and the hard-stop-at-a-report
+          boundary intact. No independent personal-repo usage yet — trial
+          status pending a real use from this repo.
+    next_action: >
+      Use on a real EF Core migration-divergence incident from this repo (or
+      a personal/non-employer project), then review whether the trigger and
+      procedure hold up unchanged before promoting past trial.
+
+  - id: sql-backfill-pipeline-scaffold
+    name: SQL Backfill Pipeline Scaffold
+    status: trial
+    confidence: emerging
+    distribution: personal
+    trigger: >
+      Use when recovering a corrupted value requires walking a chain across
+      two or more database systems and the resulting mutation will
+      eventually be handed to someone else (a DBA, another team) to run
+      against production.
+    canonical_repo: ai-toolkit
+    canonical_path: skills/engineering/sql-backfill-pipeline-scaffold/SKILL.md
+    owner: Justin
+    last_reviewed: "2026-08-08"
+    evidence:
+      - date: "2026-08-08"
+        type: sanitized-mirror
+        notes: >
+          Sanitized, portable mirror of the es-ai-toolkit skill of the same
+          name (canonical_repo es-ai-toolkit, status experimental there).
+          Reviewed the source in full for employer-identifying specifics
+          (real ticket IDs, internal system/table names, coworker names,
+          internal environment names) and found none — the source was
+          already written in system-agnostic terms ("a local DB", "another
+          system's log table", "a logged JSON response"). Ported unchanged
+          aside from the frontmatter schema and fixing the
+          `sql-server-safety` baseline's relative link depth for this repo's
+          `skills/engineering/<name>/` nesting (one level deeper than
+          es-ai-toolkit's `skills/<name>/`). Kept the phase-numbered
+          scaffold shape, the `batch-ids.py` helper contract, and the
+          row-count-branched verify/mutate split intact. No independent
+          personal-repo usage yet — trial status pending a real use from
+          this repo.
+    next_action: >
+      Use on a real multi-system backfill/data-recovery task from this repo
+      (or a personal/non-employer project), then review whether the
+      scaffold shape and verify/mutate split hold up unchanged before
+      promoting past trial.
+
   - id: client-flow-diagrams
     name: Client Flow Diagrams
     status: candidate
