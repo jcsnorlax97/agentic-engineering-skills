@@ -148,7 +148,7 @@ These principles are folder-name-agnostic. If the repo specifies where documenta
 This baseline takes precedence over ordinary implementation habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:code-doc-sync -->
 
-<!-- BEGIN baseline:git-collaboration-hygiene v0.6.0 -->
+<!-- BEGIN baseline:git-collaboration-hygiene v0.7.0 -->
 ## Portable Agent Baseline: Git Collaboration Hygiene
 
 - Inspect repository state before changing or committing: check the active branch and working tree when Git is available, especially before edits, staging, commits, pulls, merges, rebases, or pushes.
@@ -170,6 +170,7 @@ This baseline takes precedence over ordinary implementation habits, but never us
 - Consider a long-lived, never-merged notes/diagrams branch when the team already has that convention, mirroring its existing structure rather than inventing a new one.
 - Before scoping a work item that is one of several siblings under a shared parent, check every sibling's assignee and state: in any hierarchical issue tracker (Jira, Linear, GitHub Projects, Azure DevOps, etc.), query the parent's other child items before committing to a scope, and narrow your own scope rather than duplicating overlapping work a sibling is already actively covering.
 - Reference a work item's own ID in commit messages and branch names, not its parent's: in a hierarchical tracker, referencing the wrong level causes the tracker's auto-link to attach the change to the parent instead of the child, making the real item look untouched in status reports and dashboards.
+- Before pushing additional commits to an already-open PR branch, verify the PR is still open: a reviewer can merge it while you're still working, and pushing to a since-merged branch just strands the commits outside `main` rather than failing loudly — if it's merged, branch fresh from an updated `main`, cherry-pick the stranded commits, and open a new PR instead of force-pushing into a closed one.
 
 This baseline takes precedence over ordinary Git habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:git-collaboration-hygiene -->

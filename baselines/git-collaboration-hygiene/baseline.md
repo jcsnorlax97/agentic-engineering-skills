@@ -1,7 +1,7 @@
 # Git Collaboration Hygiene Baseline
 
 Status: active
-Version: 0.6.0
+Version: 0.7.0
 
 This is a tool-neutral always-on baseline for AI coding agents working in Git
 repositories. It captures collaboration safety that should apply before
@@ -137,6 +137,15 @@ workflow-specific PR, release, deploy, or multi-agent procedures.
     tracker's auto-link to attach the change to the parent instead of the
     child, making the real item look untouched in status reports and
     dashboards.
+
+20. Before pushing additional commits to an already-open PR branch, verify
+    the PR is still open.
+    A reviewer can merge it while you're still working — the local branch
+    won't reflect that until you check (`gh pr view <number>` or `gh pr
+    list --state open`). Pushing to a since-merged branch doesn't fail
+    loudly; it just strands the commits outside `main`. If it's merged,
+    branch fresh from an updated `main`, cherry-pick the stranded commits,
+    and open a new PR — don't force-push back into a closed one.
 
 ## Priority
 
