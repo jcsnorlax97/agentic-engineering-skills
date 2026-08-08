@@ -1,7 +1,7 @@
 # Repo Context Grounding
 
 Status: active
-Version: 0.3.1
+Version: 0.3.2
 
 Before meaningful work in an existing repository:
 
@@ -14,6 +14,7 @@ Before meaningful work in an existing repository:
 - Verify at the right level: run the smallest meaningful repo-native check first, then broaden verification when changes touch shared behavior or public interfaces.
 - Before proposing new process, tooling, or a new skill/repo/governance layer in a repo, explicitly check whether that repo already documents a build-gate or promotion doctrine (e.g. a "pain twice, dated" rule) and evaluate the proposal against it — rather than relying on vague recollection of whether such a doctrine exists.
 - Check for a local copy before asking to re-supply: when a chat or integration tool can only describe an attachment (filename, size, metadata) but cannot fetch or render its content, check whether the same file already exists on local disk before asking the user to re-supply it.
+- Prefer an installed shim/wrapper command over a repo's raw tooling script path: check `Get-Command <name>` / `where <name>` for an installed CLI before falling back to `./scripts/<name>` or `.\scripts\<name>.ps1`. A repo may deliberately name its shim differently from its own script path (e.g. a prefix distinguishing it from a sibling repo's identically-structured tool) specifically so invocations don't cross-target the wrong repo — using the raw path bypasses that distinction, and any command text written into commit messages or PR descriptions inherits the same wrong name.
 
 ## Priority
 

@@ -8,11 +8,14 @@ karpathy-principles
 git-collaboration-hygiene
 repo-context-grounding
 commit-conventions
+commit-attribution
 branch-naming
 pr-description
 code-doc-sync
 oop-extension-safety
+startup-config-validation
 dotnet-conventions
+powershell-conventions
 process-vs-work-doctrine
 layered-ownership
 verification-epistemics
