@@ -38,7 +38,7 @@
 | `ExternalDocumentation/` | Specs, vendor docs, legacy internal docs — reference material this project doesn't own the content of. |
 | `Grilling/` | Design-decision / grilling-session output, one dated subfolder per session (`YYYY-MM-DD-topic/`). |
 
-*(Add rows here as on-demand folders get created — `MeetingPrep/`, `ToImplementNotes/`, `DbNotes/`, `Bugs/`, `SetupNotes/`, or whatever this project actually needs. Reach for one of these names before inventing a new one for the same kind of thing.)*
+*(Add rows here as on-demand folders get created — `MeetingPrep/`, `ToImplementNotes/`, `DbNotes/`, `Bugs/`, `SetupNotes/`, `DecisionRecords/`, `SystemFlows/`, or whatever this project actually needs. Reach for one of these names before inventing a new one for the same kind of thing.)*
 
 ### Story/ticket folders — `00N-<ticket-id>-<short-kebab-name>/`
 
@@ -61,7 +61,7 @@ One per unit of work, numbered by creation order, ticket-id anchors it back to t
 - **Fixed reference folders** (`Glossary/`, `ExternalDocumentation/`, `Grilling/`, and any on-demand ones) are PascalCase, no number prefix, no spaces — they're singletons, not chronologically ordered relative to each other.
 - **Story/ticket folders** are numbered (`00N-<ticket-id>-<short-kebab-name>/`) because creation order genuinely matters for these.
 - **This file keeps its `0000-` prefix on purpose** — specifically so it sorts before every PascalCase folder and every `00N-...` story folder in a plain directory listing. That's the one deliberate exception to "fixed folders don't get numbers."
-- **Files within any folder** are kebab-case `.md`.
+- **Files within any folder** are kebab-case `.md` — except `DecisionRecords/`, whose files are `000N-kebab-slug.md` (numbered, sequence order is load-bearing there, same reasoning as story folders).
 - **New story work → new numbered folder.** Give it an entry file (`README.md` or `00-SUMMARY.md`) if it'll have more than 2-3 files.
 - **Cross-cutting, not story-specific** → the on-demand fixed folders above, not a new ad hoc folder.
 - **A design-decision / grilling session → a new dated subfolder under `Grilling/`**, not a new top-level dated folder.
