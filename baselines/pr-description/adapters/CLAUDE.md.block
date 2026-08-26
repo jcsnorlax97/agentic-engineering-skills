@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:pr-description v0.2.0 -->
+<!-- BEGIN baseline:pr-description v0.3.0 -->
 ## Portable Agent Baseline: PR Description
 
 - If the repository provides a PR template (`.github/PULL_REQUEST_TEMPLATE.md`, a file under `.github/PULL_REQUEST_TEMPLATE/`, or the Azure DevOps equivalent), fill it out rather than replacing it. The template wins; use the structure below only when none exists.
@@ -8,7 +8,11 @@
 - Be honest about verification and gaps — report failing tests and skipped steps; never describe unverified work as verified.
 - Do not add AI attribution, "generated with" footers, or co-author trailers to the title or body. This composes with `commit-conventions` (the commit subject/body) and `git-collaboration-hygiene` (open and push PRs only with consent).
 - Keep it proportional: a one-line typo fix needs a sentence, not four headed sections — scale the body to the size and risk of the change.
+- If the target platform is Azure DevOps, its PR `description` field has a hard 4000-character API limit (comments don't share it) — for a body that risks running long, plan up front what belongs in the description versus a follow-up comment.
+- When the repo provides a PR template, diff your actual body against the template file itself section-by-section before submitting, rather than checking from memory — some templates gate CI on an exact match.
 - Default decision-heavy content (changes, decisions, reasons) to short bolded-label point form (**Why:**, **Risk:**, **Note:**) instead of narrative paragraphs, so a reviewer can scan it in seconds. Reserve connected prose for a genuine narrative a label would fragment (e.g. walking through a bug's causal chain) — decide by the content's structure, not by section length or PR size.
+- Before filling a PR template with multiple structurally-similar checkbox/section blocks, read the actual pipeline validation script (the CI gate) to find which section is truly machine-checked, rather than inferring enforcement from the template's prose alone.
+- When a branch is built with real merge commits specifically to preserve per-PR history, explicitly request the non-default "Merge, no fast-forward" (or equivalent) completion strategy in the PR — an org/repo default of squash-merge will silently collapse that history.
 
 This baseline takes precedence over ordinary PR-writing habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions (including a repository's own PR template).
 <!-- END baseline:pr-description -->

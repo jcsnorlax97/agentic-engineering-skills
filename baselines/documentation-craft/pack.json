@@ -1,0 +1,17 @@
+{
+  "name": "documentation-craft",
+  "version": "0.1.0",
+  "status": "active",
+  "description": "Always-on documentation structure/mechanics/prose discipline: track cross-file edit recommendations as actions, verify link integrity by script after moves/renames (re-checking every touched file), recognize a cross-unit request as a new information-grain category, place general system knowledge in the producer's repo, default user-facing docs to minimum-necessary wording, and keep bug-fix comments short with audit evidence moved elsewhere.",
+  "source": {
+    "title": "Documentation Craft Baseline",
+    "repository": "local",
+    "license": "repo-local",
+    "relationship": "Distilled from sessions where an in-prose recommendation to edit another file was never tracked and got lost, a file move corrupted unrelated links via an over-broad find/replace, a cross-cutting follow-up request was nearly forced into a single existing document instead of becoming its own category, producer/consumer documentation was split by where the need arose rather than by generality, verbose user-facing docs went unpruned, and an inline bug-fix comment duplicated phrasing between its 'before' and 'after' halves."
+  },
+  "adapters": {
+    "codex": "adapters/AGENTS.md.block",
+    "claude": "adapters/CLAUDE.md.block",
+    "copilot": "adapters/copilot-instructions.md.block"
+  }
+}

@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:git-collaboration-hygiene v0.7.0 -->
+<!-- BEGIN baseline:git-collaboration-hygiene v0.8.0 -->
 ## Portable Agent Baseline: Git Collaboration Hygiene
 
 - Inspect repository state before changing or committing: check the active branch and working tree when Git is available, especially before edits, staging, commits, pulls, merges, rebases, or pushes.
@@ -21,6 +21,14 @@
 - Before scoping a work item that is one of several siblings under a shared parent, check every sibling's assignee and state: in any hierarchical issue tracker (Jira, Linear, GitHub Projects, Azure DevOps, etc.), query the parent's other child items before committing to a scope, and narrow your own scope rather than duplicating overlapping work a sibling is already actively covering.
 - Reference a work item's own ID in commit messages and branch names, not its parent's: in a hierarchical tracker, referencing the wrong level causes the tracker's auto-link to attach the change to the parent instead of the child, making the real item look untouched in status reports and dashboards.
 - Before pushing additional commits to an already-open PR branch, verify the PR is still open: a reviewer can merge it while you're still working, and pushing to a since-merged branch just strands the commits outside `main` rather than failing loudly — if it's merged, branch fresh from an updated `main`, cherry-pick the stranded commits, and open a new PR instead of force-pushing into a closed one.
+- After `git checkout <ref> -- <path>` (or a similarly-scoped restore) to pull one file, immediately run `git diff` to confirm no uncommitted edit to that file was silently clobbered — the command overwrites, it does not merge.
+- When resuming a stale, never-pushed local branch whose base has diverged heavily via unrelated churn, check whether the branch's own changed files were touched upstream since the branch point; if not, recreate the branch from the current base and cherry-pick the original commits rather than rebasing through the noise.
+- Before requesting review, and after any commit that reverses or removes a feature the PR title/description claims, resync the title/description against the branch's actual current diff, not just its original scope.
+- Before merging a stacked PR chain, check the repo's `deleteBranchOnMerge` setting; if false, plan manual base-retargeting (e.g. `gh pr edit <n> --base <target>`) after each merge instead of assuming auto-cascade.
+- When describing results of a local-only/speculative git operation (dry-run merge, preview, not-yet-pushed fix), state explicitly up front that nothing is pushed/visible remotely yet, before describing what was found or resolved.
+- Before declaring a branch/PR merge-ready or reporting work as pushed, run `git rev-list --count origin/<branch>..HEAD` (or equivalent) rather than trusting recollection of prior `git push` calls in the conversation.
+- Before committing/pushing directly to a repo reached through an indirect path (symlink chain, generated worktree, submodule), run `git remote -v` to confirm whether it's personally owned or a shared/team-owned repo; treat any non-personal remote as requiring the same review process as a teammate's PR, not a direct push.
+- When verifying a multi-branch integration/merge is complete, build it in a disposable integration worktree (merge N branches, resolve conflicts, build+test) and preview any predicted-but-unseen conflict on a throwaway branch first; then verify completeness by partitioning files into single-owner (cheap byte-diff) vs. shared (added-line diff) rather than one flat loop over all files times all branches.
 
 This baseline takes precedence over ordinary Git habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:git-collaboration-hygiene -->

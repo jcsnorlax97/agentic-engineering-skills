@@ -1,0 +1,11 @@
+<!-- BEGIN baseline:agent-orchestration v0.1.0 -->
+## Portable Agent Baseline: Agent Orchestration
+
+- Before relying on a dispatched sub-agent's `isolation: "worktree"` option to cover work in a repo other than the current session's own, don't assume it covers that other repo — verify the mechanism's actual scope, or create the worktree explicitly in the target repo yourself and hand the agent that literal path.
+- When dispatching a background/sub-agent to continue work already partially investigated, include concrete already-discovered specifics (file paths, class/symbol names, ruled-out candidates, commands already tried) in the dispatch prompt rather than a cold open-ended prompt that forces the agent to re-derive them.
+- When multiple parallel background agents are working toward one time-sensitive answer, post an interim synthesis of whatever is already solid as soon as it exists, explicitly labeled partial, then layer each subsequent completion on as a scoped update rather than withholding everything until the last agent finishes.
+- When a safety-classifier block hits an IAM- or secret-adjacent write, stop and hand the user the exact command/value rather than routing around it via another tool or approach — and don't assume a later identical attempt will fail the same way, since classifier behavior isn't fully deterministic.
+- Before appending a sequentially-numbered entry to a shared memory/log file that more than one concurrent session could touch, grep the file for that exact ordinal immediately before writing (not a value read earlier in the conversation); on collision, disambiguate explicitly rather than inventing a corrected total order.
+
+Apply this baseline before dispatching, coordinating, or reporting on sub-agent/background-agent work, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions. This does not cover which agent/model to pick, or prompt-engineering content quality — only dispatch/coordination/scope mechanics.
+<!-- END baseline:agent-orchestration -->

@@ -1,7 +1,7 @@
 # Git Collaboration Hygiene Baseline
 
 Status: active
-Version: 0.7.0
+Version: 0.8.0
 
 This is a tool-neutral always-on baseline for AI coding agents working in Git
 repositories. It captures collaboration safety that should apply before
@@ -146,6 +146,63 @@ workflow-specific PR, release, deploy, or multi-agent procedures.
     loudly; it just strands the commits outside `main`. If it's merged,
     branch fresh from an updated `main`, cherry-pick the stranded commits,
     and open a new PR — don't force-push back into a closed one.
+
+21. After a scoped restore, diff to confirm nothing was silently
+    clobbered.
+    After `git checkout <ref> -- <path>` (or a similarly-scoped restore) to
+    pull one file, immediately run `git diff` on that path to confirm no
+    uncommitted edit to that file was silently clobbered — the command
+    overwrites, it does not merge.
+
+22. When resuming a stale, never-pushed branch whose base has diverged
+    heavily via unrelated churn, check history before rebasing through it.
+    Check whether the branch's own changed files were touched upstream
+    since the branch point. If not, recreate the branch from the current
+    base and cherry-pick the original commits rather than rebasing through
+    the noise.
+
+23. Resync a PR's title/description against its actual current diff
+    before review, and after any commit that reverses its claimed scope.
+    Before requesting review, and after any commit that reverses or
+    removes a feature the PR title/description claims, resync the
+    title/description against the branch's actual current diff, not just
+    its original scope.
+
+24. Before merging a stacked PR chain, check the repo's
+    `deleteBranchOnMerge` setting rather than assuming auto-cascade.
+    If it's false, plan manual base-retargeting (e.g. `gh pr edit <n>
+    --base <target>`) after each merge instead of assuming the next PR in
+    the chain will automatically retarget onto the merged one.
+
+25. State explicitly, up front, when a described git result is
+    local-only or speculative and not yet visible remotely.
+    For a dry-run merge, a preview, or a not-yet-pushed fix, say
+    explicitly that nothing is pushed/visible remotely yet, before
+    describing what was found or resolved.
+
+26. Verify push status with a real command rather than trusting
+    recollection of prior pushes.
+    Before declaring a branch/PR merge-ready or reporting work as pushed,
+    run `git rev-list --count origin/<branch>..HEAD` (or equivalent)
+    rather than trusting recollection of prior `git push` calls earlier in
+    the conversation.
+
+27. Before committing/pushing through an indirect path, confirm repo
+    ownership with `git remote -v`.
+    A symlink chain, generated worktree, or submodule can land you in a
+    repo you don't personally own. Run `git remote -v` to confirm whether
+    it's personally owned or a shared/team-owned repo; treat any
+    non-personal remote as requiring the same review process as a
+    teammate's PR, not a direct push.
+
+28. Verify a multi-branch integration in a disposable worktree, then
+    partition completeness checks by file ownership.
+    Build it in a disposable integration worktree (merge N branches,
+    resolve conflicts, build+test), and preview any predicted-but-unseen
+    conflict on a throwaway branch first. Then verify completeness by
+    partitioning files into single-owner (cheap byte-diff) vs. shared
+    (added-line diff) rather than one flat loop over all files times all
+    branches.
 
 ## Priority
 

@@ -1,7 +1,7 @@
 # .NET Conventions Baseline
 
 Status: active
-Version: 0.2.0
+Version: 0.3.0
 
 Always-on .NET/C# conventions for dependency-injection registration and
 codegen/scaffold output. Distilled from 2026-07 EpinServer work where DI
@@ -26,6 +26,10 @@ scaffolded EF Core migration surfaced changes the agent hadn't caused.
    build the full URI per call instead. This generalizes beyond `HttpClient`:
    any DI-pooled object with a "set-once at registration" value is wrong when
    that value is actually per-call.
+   Reinforcement: a `DelegatingHandler` registered via
+   `AddHttpMessageHandler<T>()` is pooled, not created per-request. Per-request
+   state must flow through `HttpRequestMessage.Options` (or headers), never a
+   constructor-injected scoped service treated as if it were set once per call.
 
 3. Treat an unexpected scaffold diff as evidence of pre-existing drift, not
    something you caused.
@@ -72,6 +76,48 @@ scaffolded EF Core migration surfaced changes the agent hadn't caused.
 12. When two options classes bind the same config section, treat one reading
     a property from the other instead of owning its own as a design smell
     to flag during implementation.
+
+13. Before adding a generic type parameter to accept "one of several caller
+    types" while preserving encapsulation, check whether the constraint
+    interface it requires already does the whole job.
+    If the interface used as the generic constraint already exposes every
+    member the method needs, the generic buys nothing — skip it. Only
+    introduce the generic when the concrete type itself, not just what its
+    constraint interface exposes, must flow back out past the method's
+    boundary.
+
+14. Before adding a method to a shared strategy-pattern interface, check
+    whether sibling implementers treat existing methods as genuine
+    capabilities or as permanent unfillable stubs.
+    A method intrinsically tied to one implementer's protocol belongs on a
+    narrow capability interface instead of the shared one — not on the
+    interface every strategy implements. Justify the split with demonstrated
+    risk from keeping it shared, not a hypothetical future need.
+
+15. Before naming a new shared abstraction merged from separate call sites,
+    check the domain model's existing vocabulary for a narrower established
+    meaning tied to only one of the call sites.
+    Look at existing status fields, enums, and doc comments before picking a
+    name. Prefer a mechanical/structural name over a state-implying one when
+    the call sites being merged don't uniformly share that state — reusing a
+    status-flavored name that only fits one call site will mislead readers at
+    the other.
+
+16. An idempotency/replay short-circuit that finds a record by key must
+    separately validate the record's current state (status/expiry) before
+    reusing it in a response.
+    Existence at that key is not the same as still being valid to reuse. A
+    record that once satisfied the request may since have expired, been
+    cancelled, or moved to a terminal state; returning it unchecked reuses
+    stale data as if it were still current.
+
+17. When auditing every call-site of a conditional credential-routing system
+    (e.g. multiple HttpClient configurations), enumerate every method x its
+    actual routing rule from the code itself into a full table.
+    Read the routing rule from the code, not from memory. Separate the rows
+    into "by-design", "correctly exempted", and
+    "should-be-exempted-but-isn't" — don't spot-check a handful of call sites
+    and assume the rest follow the pattern.
 
 ## Priority
 

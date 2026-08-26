@@ -1,0 +1,12 @@
+<!-- BEGIN baseline:documentation-craft v0.1.0 -->
+## Portable Agent Baseline: Documentation Craft
+
+- Before requesting review, if a response recommends an edit to a different file than the one being written, either make that edit immediately or explicitly track it as an open item somewhere it will be re-surfaced — a recommendation written in one document's prose is not itself a completed action.
+- After moving or renaming cross-linked markdown files, verify link integrity with a script that resolves every relative link target — don't rely on memory of what was touched, and re-check every file that WAS touched (not just the ones intended to reference) for over-broad find/replace corruption of unrelated links.
+- When a follow-up documentation request spans or sequences multiple existing units rather than adding depth to any single one, recognize it as a shift in information grain and create a new parallel category instead of forcing it into an existing file.
+- When writing or relocating documentation that spans "how the system generally works" and "how this one tool/consumer uses it," place general system knowledge in the producer's repo (linked from the consumer) and keep only tool-specific content in the consumer's repo — decide per section (would this be equally true for a different consumer of the same system?), not by where the need first arose.
+- Default all user- or support-staff-facing documentation to minimum-necessary wording (word > phrase > clause > sentence) as a recursive default, distinct from durable audit/decision records where completeness matters more than brevity.
+- Inline bug-fix code comments should be a short "does X — previously did Y" statement in 1-2 sentences with no duplicated phrasing or ambiguous reused terms; move full audit-trail/cross-validation evidence to a separate durable doc, never inline in the comment itself.
+
+Apply this baseline whenever writing, restructuring, relocating, or reviewing documentation, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions. This does not cover code/doc sync (see `code-doc-sync`) or living-handoff-document lifecycle (see `handoff-doc-discipline`).
+<!-- END baseline:documentation-craft -->

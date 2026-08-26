@@ -102,6 +102,42 @@ skills:
       mistake?) before deciding whether this skill needs an earlier or
       automatic trigger rather than staying purely manually-invoked.
 
+  - id: verify-concurrent-session-changes
+    name: Verify Concurrent Session Changes
+    status: trial
+    confidence: emerging
+    distribution: personal
+    trigger: >
+      Use when checking whether another agent or human session's edits to a
+      shared, non-version-controlled folder (a plain-file notes tree, a
+      shared drive, a wiki without full history) conflict with, corroborate,
+      or resolve your own recent work — whether self-initiated or because the
+      user pointed you at a specific already-finished body of work to
+      reconcile against.
+    canonical_repo: ai-toolkit
+    canonical_path: skills/engineering/verify-concurrent-session-changes/SKILL.md
+    owner: Justin
+    last_reviewed: "2026-08-25"
+    evidence:
+      - date: "2026-08-25"
+        type: first-real-use
+        notes: >
+          Built on two dated occurrences of the same gap: 2026-08-11
+          (self-initiated check of a parallel session's edits to a shared
+          personal project-notes folder, no git available, reconstructed via
+          timestamp scan + stale-reference grep + full-content read) and
+          2026-08-12 (different context — reconciliation was user-pointed at
+          a specific already-finished session's output rather than
+          self-discovered, and corrections turned out to flow in both
+          directions rather than only toward confirming nothing broke).
+          Clears process-vs-work-doctrine rule 1. Kept single-file per rule 3
+          pending a third real use.
+    next_action: >
+      Use on a real third occurrence of this pain, then review whether the
+      three-step reconstruction plus the bidirectional-reconciliation
+      addendum hold up unchanged, and whether it's worth scripting steps 1-2
+      (timestamp scan + stale-reference grep) before promoting past trial.
+
   - id: diagnose-migration-history-divergence
     name: Diagnose Migration-History Divergence
     status: trial

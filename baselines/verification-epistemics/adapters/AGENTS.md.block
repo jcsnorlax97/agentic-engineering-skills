@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:verification-epistemics v0.2.0 -->
+<!-- BEGIN baseline:verification-epistemics v0.3.0 -->
 ## Portable Agent Baseline: Verification Epistemics
 
 - A "confirmed" claim inherited from a prior session, a stale docs branch, or a teammate's description is a starting hypothesis, not a fact — re-check it against current code/data before acting on it, especially crossing a service/repo boundary or a fast-changing system.
@@ -19,6 +19,22 @@
 - When a behavior only emerges from several real components wired together, verify it with a throwaway harness on the real production wiring, substituting only the one component that can't be safely or deterministically exercised (an external system, a production-only destination) — this proves composition, not just isolated correctness, and can also disprove an already-agreed plan before any production code is written.
 - Run `git remote -v` before choosing which PR or issue-tracking tool to query for a repo, rather than inferring its hosting platform from adjacent context (a company's other tooling, a pipeline name, prior session memory) — a repo's source and PRs can live on one platform while its CI pipelines or work items live on another, and siblings in the same initiative can differ.
 - Cross-check an issue tracker's status field against actual git merge history before reporting status — grep the repo's merge-commit history for the ticket ID, since a tracked state can lag a real merge because updating it is a manual step nobody remembers. If tracker and code disagree, state both explicitly rather than treating the tracker as automatically authoritative.
+- When a `.First()`/`.Single()`/indexing assumption is found broken in one cardinality direction, explicitly check whether the opposite direction (many-to-one vs. one-to-many) is also reachable at the same call site before considering it fully diagnosed.
+- Treat a check-in-style confirmation question ("is X up to date?", "did we handle Y properly?") as a prompt to genuinely re-verify the relevant area, not just to confirm the most recent single action taken.
+- When evidence (screenshot, log, error text) arrives with no stated target and more than one question is genuinely open, confirm which question it answers before asserting it confirms any specific claim.
+- When a qualitative architecture/design trade-off debate loops more than a round or two without converging, stop arguing and search for one concrete, directly verifiable fact that could reframe the question.
+- When a broad, high-blast-radius claim rests on a single piece of confirming evidence, triangulate independently across multiple channels (code, cross-repo/history search, team chat) before treating it as confirmed, scaled to the claim's stakes.
+- A working test artifact or confident secondary summary that exercises "an" operation is not evidence it's the specific correct operation for a stated question — verify against the authoritative primary spec by exact name/verb match.
+- Before raising a documented governance/compliance requirement as a blocker on a newly built mechanism, verify its literal trigger condition rather than generalizing from its apparent intent.
+- When verifying whether a value survives a multi-hop integration spanning several repos/deployables, check every hop independently — not just the first one found broken — before concluding the fix is complete.
+- Before presenting a field as editable in a scaffolded create/update form, verify server-side that it actually flows through unmodified rather than being silently overridden or derived.
+- When verifying an edge-case input is safe across a multi-layer/multi-service call chain, decompose into layers and check each for named concrete risk patterns rather than reasoning generally that it's "naturally safe."
+- When an internal construct's name resembles a term in an external vendor's own spec, verify the vendor's actual definition directly from their primary-source document rather than assuming shared meaning from name similarity.
+- On the first auth failure right after a credential-routing change, rule out a stale pre-change token/credential before granting new permissions.
+- Code archaeology escalation ladder: when current code plus retired/superseded implementations don't fully explain a field's or mechanism's purpose, search the org's internal wiki for GUI-only admin/setup mechanisms before concluding the answer is unknowable.
+- Before finalizing any output built from fresh research (a new note, a conclusion, a recommendation), search the relevant existing notes/vault areas for prior coverage of the same specific question.
+- Before performing an action type known to have a stored feedback/mistake memory, load and apply that memory proactively before the action, not as a post-hoc check.
+- One ad hoc pass or grep is not proof of completeness when sweeping a whole surface for remaining references/artifacts (e.g. removing a deprecated subsystem, finding all stranded commits across remote branches) — run a parameterized, re-run-until-zero-new-hits sweep across the full surface instead of incremental ad hoc checks.
 
 Apply this baseline before presenting a conclusion or summary of "what's true here," but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:verification-epistemics -->

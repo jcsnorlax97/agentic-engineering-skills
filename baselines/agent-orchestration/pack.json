@@ -1,0 +1,17 @@
+{
+  "name": "agent-orchestration",
+  "version": "0.1.0",
+  "status": "active",
+  "description": "Always-on dispatch/coordination discipline for AI sub-agents and background agents: verify worktree-isolation scope before trusting it in another repo, hand continuation dispatches concrete already-discovered specifics, post labeled partial syntheses from parallel agents, stop (don't route around) IAM/secret-adjacent classifier blocks, and grep a shared log for ordinal collisions immediately before writing.",
+  "source": {
+    "title": "Agent Orchestration Baseline",
+    "repository": "local",
+    "license": "repo-local",
+    "relationship": "Distilled from sessions where a sub-agent's worktree isolation was assumed (wrongly) to cover a different repo, a continuation dispatch re-derived already-known specifics, parallel background agents withheld a time-sensitive answer until every branch finished, an IAM-adjacent write hit a safety-classifier block, and a shared append-only log had a stale next-ordinal collision between concurrent sessions."
+  },
+  "adapters": {
+    "codex": "adapters/AGENTS.md.block",
+    "claude": "adapters/CLAUDE.md.block",
+    "copilot": "adapters/copilot-instructions.md.block"
+  }
+}

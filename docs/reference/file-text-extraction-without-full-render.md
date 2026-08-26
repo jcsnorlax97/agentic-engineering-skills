@@ -2,15 +2,38 @@
 
 Status: technique note (2026-07-27, single occurrence so far — not yet a
 skill; see `process-vs-work-doctrine` rule 1). Promote to a skill if this
-recurs.
+recurs. The `.docx` technique below was corrected on 2026-08-25 after a real
+occurrence showed the original regex-based approach silently corrupting
+output.
 
 When the Read tool can't usefully return a file's text directly:
 
-- **`.docx`**: unzip it and strip XML tags from `word/document.xml`. A `.docx`
-  is a zip archive; the document body is plain XML with the visible text
-  wrapped in `<w:t>` runs. `unzip -p file.docx word/document.xml` piped
-  through an XML-tag strip (e.g. `sed -e 's/<[^>]*>//g'`) gets readable text
-  without a full document-conversion tool.
+- **`.docx`**: unzip it and parse `word/document.xml` with a real namespaced
+  XML parser — do not strip tags with regex. A `.docx` is a zip archive; the
+  document body is XML with the visible text wrapped in `<w:t>` runs under the
+  `w:` namespace. Regex-based tag stripping (e.g. `sed -e 's/<[^>]*>//g'`) is
+  fragile and has been observed to silently corrupt or truncate the extracted
+  text: it doesn't understand namespaced tags, self-closing tags, or attribute
+  values that themselves contain `<`/`>`-like content, so it can strip too
+  much, too little, or merge text that should stay separated. Instead, unzip
+  `word/document.xml` and parse it properly — e.g. in Python:
+
+  ```python
+  import zipfile
+  import xml.etree.ElementTree as ET
+
+  ns = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
+  with zipfile.ZipFile("file.docx") as z:
+      xml_bytes = z.read("word/document.xml")
+  root = ET.fromstring(xml_bytes)
+  text = "".join(t.text or "" for t in root.iter(f"{{{ns['w']}}}t"))
+  print(text)
+  ```
+
+  Register the `w:` namespace and pull text specifically from `<w:t>`
+  elements — this correctly handles self-closing tags, attributes, and
+  nesting that a regex strip cannot. Use the equivalent construct (a real XML
+  library, not a regex) in whatever language is already in play for the task.
 - **Large mermaid-exported `.svg`**: grep for the `>text<` patterns. A large
   rendered diagram's SVG can be too big to read in full, but the visible
   labels are still plain text between tag boundaries — `grep -oE '>[^<]+<'

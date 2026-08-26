@@ -1,13 +1,18 @@
-<!-- BEGIN baseline:sql-server-safety v0.1.0 -->
+<!-- BEGIN baseline:sql-server-safety v0.2.0 -->
 ## Portable Agent Baseline: SQL Server Safety
 
 - Never `NOLOCK` a LOB column (`nvarchar(max)`, `varchar(max)`, `xml`, etc.) read under concurrent writes — it can return a torn/inconsistent read. Scope `NOLOCK` to small fixed-size columns only, or use snapshot isolation when LOB columns must be read under load.
-- Never `NOLOCK` a completion/sign-off verification query — the query whose result is the literal basis for "did the fix work." A false-positive success signal is worse than occasionally waiting on a lock.
+- Never `NOLOCK` a completion/sign-off verification query — the query whose result is the literal basis for "did the fix work." A false-positive success signal is worse than occasionally waiting on a lock. An intentionally-NOLOCK/READ UNCOMMITTED diagnostic query's output is never proof a fix actually committed either — check real commit/transaction state (`@@TRANCOUNT`) directly.
 - A CTE is not a materialization boundary — the optimizer can inline it, so it does not guarantee filter-then-process order. When a downstream step can throw on a row the CTE was meant to filter out, materialize into a real temp table (`SELECT ... INTO #temp`) instead.
 - Before handing diagnostic SQL to a person to run against production, check it is sargable (no `(@param IS NULL OR col = @param)` patterns) and range-bounded (no unbounded scans on large/multi-tenant tables).
 - A script positioned as "read-only verification" must contain zero mutating statements (`UPDATE`/`DELETE`/`INSERT`/`MERGE`, including a "guarded" transaction) — mechanically, not by convention.
 - A validation/preview query and its paired mutation should share one written filter condition (temp table of keys, shared variable, or literal copy) rather than two independently maintained copies that merely look equivalent.
 - When a design validated at small scale meets a real target orders of magnitude larger, re-derive concrete thresholds (row count, lock count, batch size) before trusting it — SQL Server escalates to a table lock around ~5,000 held row/page locks.
+- Before opening a new interactive `BEGIN TRANSACTION` left for human review, check `@@TRANCOUNT` first — a single `ROLLBACK` unwinds the entire nested stack while `COMMIT` only decrements nesting depth, so unresolved nested transactions break the "commit/rollback each independently" mental model.
+- Before extending an existing shared table's schema through one schema-management pipeline (e.g. EF Core migrations), check whether a second, independent pipeline (a legacy DACPAC/SQL project, another team's migration tool) also declares that exact table — if so and it could still deploy, create a new table instead of risking silent drift or data loss.
+- To determine a table's true row-uniqueness or grain, query `sys.indexes`/`sys.index_columns` directly for the actual constraint — don't infer uniqueness from column, table, or foreign-key names.
+- Before writing raw SQL to repair a data-integrity gap in a live/shared environment, check whether the application already exposes a validated write endpoint/command for that exact operation, and prefer it over raw SQL — it's already validated and sidesteps environment/server-identity uncertainty.
+- A `Microsoft.Data.SqlClient` DLL-load failure (SNI native DLL, e.g. `DllNotFoundException`/`0x800700CE`) on a deeply-nested working-directory path (OneDrive-synced folders are a common trigger) is a Windows path-length artifact, not a code regression — re-verify from a short-path clone before treating it as real.
 
 Apply this baseline before ordinary SQL-authoring habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:sql-server-safety -->

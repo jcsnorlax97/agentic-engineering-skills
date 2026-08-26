@@ -1,7 +1,7 @@
 # PR Description Baseline
 
 Status: active
-Version: 0.2.0
+Version: 0.3.0
 
 This is a tool-neutral always-on baseline for AI coding agents that open pull
 requests in a repository. It sets the *content* of the PR: a title a reviewer
@@ -69,13 +69,45 @@ section only when it genuinely does not apply.
    A one-line typo fix needs a sentence, not four headed sections. Scale the
    body to the size and risk of the change.
 
-5. Default decision-heavy content to bolded-label point form, not prose.
+5. Check the description length limit before submitting, if the platform has
+   one.
+   Azure DevOps's PR `description` field has a hard 4000-character API limit
+   (PR comments don't share this limit). For a body that risks running long,
+   plan up front what belongs in the description versus what belongs in a
+   follow-up comment, rather than discovering the truncation at submit time.
+   This applies whenever the target platform is Azure DevOps, work or
+   personal.
+
+6. When the repo provides a PR template, verify compliance section-by-section
+   before submitting.
+   Diff the actual body you're about to submit against the template file
+   itself — section by section, checkbox by checkbox — rather than checking
+   from memory of what the template "usually" asks for. Some templates gate CI
+   on an exact match (e.g. a version-bump checkbox block), so a remembered
+   approximation of the template is not sufficient.
+
+7. Default decision-heavy content to bolded-label point form, not prose.
    When a section is genuinely a list of discrete points — changes, decisions,
    reasons — use short bolded labels (e.g. **Why:**, **Risk:**, **Note:**)
    instead of narrative paragraphs, so a reviewer can scan it in seconds.
    Reserve connected prose for a genuine narrative a label would fragment,
    such as walking through a bug's causal chain. Decide by the content's
    structure, not by the section's length or the PR's overall size.
+
+8. Read the CI gate before trusting template prose.
+   Before filling a PR template with multiple structurally-similar
+   checkbox/section blocks, read the actual pipeline validation script (the CI
+   gate) to find which section is truly machine-checked, rather than
+   inferring enforcement from the template's prose alone. Template text can
+   describe every section as required while the pipeline only validates one
+   specific block.
+
+9. Request the merge-commit completion strategy when history depends on it.
+   When a branch is built with real merge commits specifically to preserve
+   per-PR history, explicitly request the non-default "Merge, no
+   fast-forward" (or equivalent) completion strategy in the PR. An org or
+   repo default of squash-merge will silently collapse that history into a
+   single commit.
 
 ## Example
 

@@ -1,0 +1,14 @@
+{
+  "name": "python-conventions",
+  "version": "0.1.0",
+  "status": "active",
+  "description": "Always-on Python correctness rules: raw strings/forward slashes for Windows paths interpolated into one-liners, json.JSONDecoder().raw_decode() for trailing-data JSON files, forced UTF-8 plus file-redirected re-fetch verification for Python-backed CLIs on Windows consoles, and plain ASCII punctuation instead of HTML entities in scripted Azure CLI ticket updates.",
+  "origin": {
+    "note": "Distilled from four 2026-08 incident notes captured during Azure DevOps scripting and tool-output processing work: a backslash-in-one-liner path silently misread as escape sequences, an 'Extra data' json.load() failure caused by trailing non-JSON content rather than corruption, a cp1252 UnicodeEncodeError/silent-corruption trap in az rest/az boards on Windows, and az boards work-item update silently stripping HTML entities from text fields."
+  },
+  "adapters": {
+    "codex": "adapters/AGENTS.md.block",
+    "claude": "adapters/CLAUDE.md.block",
+    "copilot": "adapters/copilot-instructions.md.block"
+  }
+}

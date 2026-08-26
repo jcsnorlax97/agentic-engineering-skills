@@ -1,7 +1,7 @@
 # SQL Server Safety Baseline
 
 Status: active
-Version: 0.1.0
+Version: 0.2.0
 
 Always-on correctness rules for T-SQL an agent writes or hands off — diagnostic
 queries, verification queries, and data-fix/backfill scripts against SQL
@@ -30,6 +30,10 @@ predicate, unbounded scan).
    false-positive success signal is worse than occasionally waiting on a
    lock. This is a narrow, role-based exception: the same table's ordinary
    diagnostic queries may still use `NOLOCK`.
+   Reinforcement: an intentionally-NOLOCK/READ UNCOMMITTED diagnostic query's
+   output is never proof that a fix actually committed. Check real
+   commit/transaction state (`@@TRANCOUNT`) directly instead of reading a
+   dirty-read query as confirmation.
 
 3. A CTE is not a materialization boundary.
    SQL Server's optimizer can inline or merge a CTE with the statement that
@@ -68,6 +72,46 @@ predicate, unbounded scan).
    approved. SQL Server escalates a transaction to a table lock at roughly
    5,000 held row/page locks; a single guarded transaction that was safe for
    dozens of rows is not automatically safe for tens of thousands.
+
+8. Before opening a new interactive `BEGIN TRANSACTION` left for human
+   review, check `@@TRANCOUNT` first.
+   A single `ROLLBACK` unwinds the entire nested transaction stack, while
+   `COMMIT` only decrements nesting depth by one. Opening a new transaction
+   without knowing the current nesting depth breaks the "commit/rollback
+   each independently" mental model a human reviewer will bring to it —
+   check `@@TRANCOUNT` before opening it, and account for the existing depth
+   in how you instruct the reviewer to resolve it.
+
+9. Before extending an existing shared table's schema through one
+   schema-management pipeline (e.g. EF Core migrations), check whether a
+   second, independent pipeline also declares that exact table.
+   A legacy DACPAC/SQL project, another team's migration tool, or any other
+   schema-management pipeline that could still deploy against the same table
+   is a silent-drift or data-loss risk if it declares that table
+   independently. If a second pipeline is still live, create a new table
+   instead of extending the shared one.
+
+10. To determine a table's true row-uniqueness or grain, query
+    `sys.indexes`/`sys.index_columns` directly for the actual constraint.
+    Don't infer uniqueness from column, table, or foreign-key names — a
+    name suggesting a unique grain (e.g. a singular-sounding table or an
+    `Id`-like column) is not evidence of an enforced constraint. Query the
+    catalog views for the real answer.
+
+11. Before writing raw SQL to repair a data-integrity gap in a live/shared
+    environment, check whether the application already exposes a validated
+    write endpoint/command for that exact operation, and prefer it.
+    An existing app-level write path is already validated and sidesteps
+    environment/server-identity uncertainty that raw SQL against a live
+    environment carries. Reach for raw SQL only when no such endpoint or
+    command exists for the operation.
+
+12. A `Microsoft.Data.SqlClient` DLL-load failure (SNI native DLL, e.g.
+    `DllNotFoundException`/`0x800700CE`) on a deeply-nested working-directory
+    path is a Windows path-length artifact, not a code regression.
+    OneDrive-synced folders are a common trigger for this because they add
+    extra nested path segments. Re-verify from a short-path clone before
+    treating the failure as a real regression.
 
 ## Priority
 

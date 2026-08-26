@@ -1,0 +1,9 @@
+<!-- BEGIN baseline:python-conventions v0.1.0 -->
+## Portable Agent Baseline: Python Conventions
+
+- Whenever a Windows filesystem path is interpolated into a Python one-liner's string literal, use a raw string (`r'...'`) or forward slashes — never a plain quoted literal. Backslash sequences in a plain string (`\n`, `\t`, `\U`, etc.) get silently read as escape sequences instead of literal path separators, sometimes raising, sometimes just corrupting the path with no error at all.
+- When a saved large JSON tool-output file fails a whole-file `json.load()` with an "Extra data" error, use `json.JSONDecoder().raw_decode()` to parse just the first valid JSON object instead of assuming the file is corrupt. Many tools append trailing non-JSON data after a valid object; the error describes trailing content, not necessarily a malformed payload. (Does not apply to deliberate JSON Lines files — parse those line by line.)
+- A Python-backed CLI (e.g. `az rest`/`az boards` on Windows) can fail loudly with a `cp1252` `UnicodeEncodeError`, or worse, silently corrupt persisted non-ASCII content, when handling non-ASCII remote text on a default Windows console. Force UTF-8 via `PYTHONIOENCODING=utf-8` or `PYTHONUTF8=1` before invoking the CLI, and verify writes via a file-redirected re-fetch of the record — never trust console output as proof a write succeeded, since the silent-corruption path prints nothing wrong.
+- `az boards work-item update` (and similar Python-backed Azure CLI update commands) can silently strip HTML entities (e.g. `&rarr;`, `&mdash;`) from text fields on update. Use plain ASCII punctuation (`->`, `--`, straight quotes) from the first attempt instead of HTML entities when scripting ticket updates.
+- Apply this baseline before ordinary Python scripting habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
+<!-- END baseline:python-conventions -->

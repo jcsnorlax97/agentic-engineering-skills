@@ -115,3 +115,30 @@ Required before declaring done:
 - [ ] The hypothesis that turned out correct is stated in the commit / PR message — so the next debugger learns
 
 **Then ask: what would have prevented this bug?** If the answer involves architectural change (no good test seam, tangled callers, hidden coupling) hand off to the `/improve-codebase-architecture` skill with the specifics. Make the recommendation **after** the fix is in, not before — you have more information now than when you started.
+
+## Paired BEFORE/AFTER worktrees — empirically verifying a fix against real data
+
+When the regression test from Phase 5 either has no correct seam, or the
+fix needs verifying against real seed data (a shared local DB, a specific
+data shape) rather than something a unit/integration test can fabricate,
+stand up two git worktrees instead of relying on before/after mental
+comparison:
+
+- **BEFORE** — a worktree detached at the pre-fix commit.
+- **AFTER** — a worktree on the fix branch.
+
+Run both against the same seed data. Front-load the collisions this
+produces early — shared ports need per-worktree overrides, and each
+worktree typically needs its own connection string/config pointing at
+isolated (or intentionally shared) state. Query the seed data once for a
+ready-to-fire repro request, run the identical request against both
+worktrees, and diff the result on the specific field/column the bug
+actually affects — not just "did it error."
+
+Capture the exact repro request and the verification query as a reusable,
+**checked-in** guide (not scratch notes) — so the next person verifying a
+related fix, or re-verifying this one after a further change, re-runs it
+instead of re-deriving the repro from scratch. This is worth doing whenever
+the fix's correctness hinges on a real data transformation that's easier to
+demonstrate empirically (old code produces X, new code produces Y, on the
+same input) than to argue from reading the diff alone.

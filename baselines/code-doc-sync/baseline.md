@@ -1,7 +1,7 @@
 # Code-Doc Sync Baseline
 
 Status: active
-Version: 0.3.0
+Version: 0.4.0
 
 Always-on documentation hygiene for AI coding agents working in repositories
 that contain architecture documentation, flow diagrams, or developer references
@@ -59,6 +59,35 @@ an abstract declaration site instead of the concrete runtime type.
    on uniform notation for both. This lets a reader trust which parts are
    current without redoing the investigation, and means only the flipped
    items need updating as design items ship.
+
+6. Check whether earlier session work already closed a documented "gap" before repeating it as current fact.
+   Before restating a documented "gap", "stub", "TODO", or "not yet
+   implemented" claim as current fact — in an answer, a status report, or a
+   doc edit — check whether earlier work in this same session (in this repo
+   or a sibling repo/branch) already closed it. This is the inverse trigger
+   of Principle 1: Principle 1 fires when you change behavior and must check
+   whether docs describe it; this principle fires when you are about to
+   assert a doc's existing claim as true and must first check your own prior
+   session work. The moment a stale claim is found, fix the doc immediately —
+   do not let the assertion stand and file a follow-up.
+
+7. Call out a manually-enforced cross-system invariant in the operational onboarding template at decision time, not as a follow-up.
+   When resolving an ambiguity produces an invariant that only holds because
+   two independently-created values are kept identical by hand — with
+   nothing automated checking it — add a call-out to the operational
+   onboarding template or script that actually creates the value, in the
+   same pass as writing the decision record. Do not defer this to a
+   follow-up task. This applies even when the triggering event was a
+   zero-code-diff decision (a naming or config choice recorded in an ADR or
+   decision doc) rather than a code change — the invariant still needs to be
+   visible to whoever runs the onboarding step next.
+
+8. Render an embedded Mermaid diagram with mermaid-cli before committing a change to it.
+   Before committing a change to a Mermaid diagram embedded in
+   documentation, render it with mermaid-cli (or an equivalent renderer) to
+   catch parse-breaking syntax errors. Visual inspection of the diagram
+   source is not sufficient — some syntax errors only surface at render time
+   and are not visible by reading the text.
 
 ## Applying in a Repo
 
