@@ -46,9 +46,40 @@ If `lesson-extraction` is available, invoke it via the Skill tool. It has its ow
 
 If `improvement-extraction` is available, invoke it via the Skill tool. It writes candidate baseline/skill notes to `IMPROVEMENTS_ROOT` with no confirmation gate, since that folder is scratch material for later manual review. If it isn't installed, note that plainly and move on to Step 4.
 
+## Step 3.5 — Improvements backlog nudge
+
+Added after the third dated occurrence (2026-07-29, 2026-08-07, 2026-08-25) of
+the identical failure: `_Improvements/` piles up between `baseline-gap-review`
+passes because nothing ever prompts a review — Step 3 writes into the folder
+every session, nothing reads it back out on its own. Three occurrences with
+the same diagnosis is not a coincidence to keep re-diagnosing; it's a
+structural gap this step closes with the smallest possible check.
+
+Only run this if Step 3 ran (skip if `improvement-extraction` wasn't
+available). Resolve `IMPROVEMENTS_ROOT` the same way Step 3 does. Then:
+
+1. Count the `.md` files directly under `IMPROVEMENTS_ROOT` (not its `Done/`
+   subfolder).
+2. Find the most recent `Done/<date>-baseline-consolidation-manifest.md` and
+   read its date from the filename.
+3. If the count exceeds **40 files**, or the most recent manifest is more
+   than **14 days** old, add one line to the Step 4 report: that the
+   `_Improvements/` backlog looks due for a `baseline-gap-review` pass, with
+   the current count and days-since-last-manifest, and that the user can run
+   `/baseline-gap-review` whenever convenient. Do not invoke the review
+   yourself — this is a nudge, not an automatic trigger; the user still
+   decides when to run it.
+4. If neither threshold is crossed, say nothing about it — this is a
+   suppress-by-default nudge, not a status line that prints every time.
+
+These thresholds are derived from the three real occurrences to date (41
+files/9 days between #1→#2, 95 files/18 days between #2→#3) — revisit them if
+a fourth occurrence shows the backlog growing at a different rate than this
+extrapolation assumed.
+
 ## Step 4 — Consolidated report
 
-After all three steps finish, are explicitly skipped, or turn out unavailable, give the user one summary covering all three: what was written, what was extended, what each skill found nothing worth capturing, and which steps were skipped because a skill wasn't installed. If Step 0.5 ran and found anything, say so explicitly (what it found, and that it came from mining the pre-compaction transcript, not the live context) rather than folding it in silently. Do not print three separate skill reports back to back — merge them into a single readable summary.
+After all three steps finish, are explicitly skipped, or turn out unavailable, give the user one summary covering all three: what was written, what was extended, what each skill found nothing worth capturing, and which steps were skipped because a skill wasn't installed. If Step 0.5 ran and found anything, say so explicitly (what it found, and that it came from mining the pre-compaction transcript, not the live context) rather than folding it in silently. If Step 3.5 flagged the backlog, include its one line. Do not print three separate skill reports back to back — merge them into a single readable summary.
 
 ## Notes
 
