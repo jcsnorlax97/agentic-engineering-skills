@@ -1,6 +1,6 @@
 ---
 name: improvement-extraction
-description: Scan the current session for candidate CLAUDE.md/AGENTS.md baselines, candidate Claude Code skills, or improvements to an existing baseline/skill/template, and write them as structured notes to a configurable output folder for later manual review. Use when the user asks to extract improvement ideas, capture process improvements, or save candidate baselines/skills surfaced during this session — phrases like "extract improvements", "capture what we'd add to CLAUDE.md", or "save this as a candidate skill idea".
+description: Scan the current session (or, in full-sweep mode, the ENTIRE session transcript including everything dropped by prior compactions) for candidate CLAUDE.md/AGENTS.md baselines, candidate Claude Code skills, or improvements to an existing baseline/skill/template, and write them as structured notes to a configurable output folder for later manual review. Use when the user asks to extract improvement ideas, capture process improvements, or save candidate baselines/skills surfaced during this session — phrases like "extract improvements", "capture what we'd add to CLAUDE.md", "save this as a candidate skill idea", or (full-sweep mode) "go through the entire session", "full/thorough sweep", "check everything discussed".
 status: trial
 problem: Candidate process improvements (baseline rules, skill ideas) surfaced during a session were only captured by manually asking, in full sentences, for the session to be scanned and written up — a repeated, mechanizable step done by hand every time.
 when-not-to-use: Do not use for capturing a full session log (that belongs to a work-log capture skill such as capture-assistant-session), for cross-company-portable personal lessons (that belongs to a personal-vault lesson-extraction skill), or for ideas too narrow to generalize past the current task.
@@ -18,6 +18,20 @@ Scan the current session for candidate CLAUDE.md/AGENTS.md baselines or candidat
   - Windows: `setx IMPROVEMENTS_ROOT "<path>"`
   - macOS/Linux: `export IMPROVEMENTS_ROOT="<path>"` in their shell profile
 - Never write the resolved path into this skill file or any committed content — the environment variable is the only place it lives.
+
+## Step 1b — Full-session sweep mode (only when explicitly asked)
+
+Default scope is "the current context" — what's actually visible in this conversation right now, which after one or more compactions is only a summary of most of the session, not the real thing. That's fine for a normal end-of-task run. Switch to full-sweep mode only when the user explicitly asks for it ("go through the entire session," "full/thorough sweep," "check everything discussed," or similar) — it costs roughly 100-120k tokens per chunk (a handful of chunks for a normal session, ~8-10 for a multi-day one), so it is not the default.
+
+1. Run the bundled script to pull the real transcript and split it into review-sized chunks:
+   ```
+   python3 <this skill's dir>/scripts/extract_transcript.py --out <scratch dir> --chunk-lines 2400
+   ```
+   Omit `--session` — it auto-detects the current session's `.jsonl` (most-recently-modified transcript under this project's `~/.claude/projects/<encoded-cwd>/`) and prints which one it picked; pass `--session <path>` explicitly if that's ever wrong. Use a scratch dir outside any repo (e.g. the job's own tmp dir) — these chunk files are working material, not something to commit.
+2. Do Step 3 (dedup listing) first, so you have the existing-candidate filename list ready to hand to every chunk agent.
+3. Dispatch one `Explore` agent per chunk file — **all in a single message**, as separate tool calls. Sequential Agent calls across separate messages run one at a time, not concurrently; batching them together is what actually parallelizes the sweep. Each agent's prompt: the chunk file path, the same three categories from Step 2, the existing-candidate filename list from Step 3 (so it can skip known topics), and an explicit note that it's one of many chunks and won't see the whole session — report findings as a compact structured list, do not write files.
+4. As each chunk's task-notification arrives, do not write files yet — collect all of them first. The same underlying incident routinely gets surfaced by two or three different chunk agents (chunk boundaries are arbitrary; long-running incidents span them), so writing per-chunk would fragment one lesson into duplicate files. Merge those before proceeding to Step 4.
+5. Continue at Step 3 (final dedup pass against `IMPROVEMENTS_ROOT`) and Step 4 as normal, using the merged, deduped list.
 
 ## Step 2 — What counts as a candidate
 
