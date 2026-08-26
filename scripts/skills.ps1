@@ -444,10 +444,10 @@ function Format-StatusCell($TargetName, $Installed) {
 function Install-PersonalTarget($TargetName, $VerifyOnly) {
     switch ($TargetName) {
         "codex" {
-            Invoke-SkillInstallScript "skills/install-codex.sh" $VerifyOnly
+            Invoke-SkillInstallScript "skills-setup/install-codex.sh" $VerifyOnly
         }
         "claude" {
-            Invoke-SkillInstallScript "skills/install-claude-code.sh" $VerifyOnly
+            Invoke-SkillInstallScript "skills-setup/install-claude-code.sh" $VerifyOnly
         }
         "copilot" {
             if ($Target -eq "all") {
@@ -571,7 +571,7 @@ switch ($Command) {
         }
     }
     "verify" {
-        $verifyScript = Join-Path $scriptDir "skills/verify.sh"
+        $verifyScript = Join-Path $scriptDir "skills-setup/verify.sh"
         if (-not (Test-Path -LiteralPath $verifyScript)) {
             throw "Missing verify script: $verifyScript"
         }
