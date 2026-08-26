@@ -1,7 +1,7 @@
 # OOP Extension Safety Baseline
 
 Status: active
-Version: 0.3.0
+Version: 0.4.0
 
 Always-on guards for inheritance extension points in object-oriented codebases.
 Applies to any language that supports abstract/virtual methods and dependency
@@ -47,6 +47,14 @@ to compile, pass tests, and reach production.
    test failure. The pattern applies to factory classes, adapters, and dispatchers
    where two or more implementations share the same routing logic but differ only
    in which concrete collaborators they use.
+
+5. Prefer a DI-wired subclass hook over an inline caller-type check.
+   When a shared class needs different behavior for a specific caller, prefer
+   a `protected virtual` hook overridden by a DI-wired subclass over checking
+   the caller's concrete type inline. The caller-specific coupling becomes
+   visible at the constructor/DI level instead of buried in logic that reads
+   as caller-agnostic — a reviewer scanning the shared class sees a normal
+   extension point, not a hidden branch that only fires for one caller.
 
 ## Priority
 

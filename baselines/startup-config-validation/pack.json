@@ -1,8 +1,8 @@
 {
   "name": "startup-config-validation",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "status": "active",
-  "description": "Always-on fail-fast posture: read and validate all required configuration values at app startup so misconfiguration surfaces immediately rather than on the first live request.",
+  "description": "Always-on fail-fast posture: read and validate all required configuration values at app startup so misconfiguration surfaces immediately rather than on the first live request, including wiring ValidateDataAnnotations().ValidateOnStart() so a .NET Options<T> class's [Required] attributes are actually enforced.",
   "source": {
     "title": "Startup Config Validation Baseline",
     "repository": "local",

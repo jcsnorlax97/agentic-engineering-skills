@@ -1,7 +1,7 @@
 # Documentation Craft Baseline
 
 Status: active
-Version: 0.1.0
+Version: 0.3.0
 
 Always-on discipline for documentation structure, mechanics, and prose-style
 decisions — how a document is organized, linked, scoped, and worded. This is
@@ -81,15 +81,81 @@ independent of whether that documentation happens to describe code.
    clutters the code it's attached to. Principle 6 is Principle 1 applied
    specifically to code comments — read together, not as unrelated rules.
 
+7. **Externalize non-fresh content out of the mandatory-read path; leave a
+   one-line pointer.**
+   When adding content to a file in the agent's mandatory-read path (a
+   CLAUDE.md/AGENTS.md-style file read every session), ask whether it needs
+   to be fresh every session; if not, externalize it to its own file with a
+   one-line pointer left in place. The mandatory-read path is a scarce
+   attention budget, not just another place to put things.
+
+8. **Elicit a highly personalized document through layered guided
+   discussion, writing each layer as it's agreed.**
+   For a highly personalized document (a persona, a voice/style guide, a
+   decision doctrine), elicit its content through layered guided discussion
+   and write each layer to file as soon as it's agreed, rather than
+   discussing everything first and writing once at the end.
+
+9. **Resolve every reference in a durable file to inlined content or another
+   durable file's path.**
+   When writing any durable file, a reference must resolve to either
+   inlined content or another durable file's path — never to ephemeral
+   session/conversation context ("see earlier discussion"), which becomes a
+   dead pointer the moment the session ends.
+
+10. **Write two separate documents when one change must inform two
+    audiences with genuinely different needs.**
+    When one underlying change must inform two audiences with genuinely
+    different needs (a reviewer deciding whether to approve, a learner
+    absorbing what to do differently), write two separate documents rather
+    than forcing both purposes into one.
+
+11. **Propagate a correction to every deliberately duplicated copy, not
+    just the one pointed out.**
+    When content is deliberately duplicated across multiple files (each
+    adapted per destination), propagate a substantive correction to every
+    copy, not just the one explicitly pointed out — check for sibling
+    duplicates before considering a fix done.
+
+12. **Default decision-dense technical documents to bolded-label point
+    form, chosen by structure not document type.**
+    Default decision/change-dense technical documents in general — not only
+    PR descriptions or review comments — to bolded-label point form when the
+    content is structurally a list of discrete points; choose format by the
+    content's actual structure, not by document type or length.
+
+13. **Do one full linear read-through after several rounds of incremental
+    edits, before finishing.**
+    After several rounds of incremental, localized edits to the same
+    document, do one full linear read-through before finishing — per-edit
+    review only catches whether each addition is correct in isolation, not
+    whether the document's ordering and cross-references still hold (e.g. a
+    conclusion that cites content added after it).
+
+14. **Append a dated superseded block in place rather than rewriting or
+    forking a resolved decision record.**
+    When a resolved decision record is superseded, append a dated
+    "superseded" block in place, preserving the original reasoning, rather
+    than rewriting the file or forking to a new one.
+
+15. **Classify an outdated document before correcting it: snapshot vs.
+    continuously-maintained reference.**
+    Before correcting an outdated document, classify it first: a
+    point-in-time snapshot (annotate/point to the current source, leave the
+    body's original reasoning unchanged) or a continuously-maintained
+    reference (correct in place, dated) — the two natures require opposite
+    correction strategies, and using the wrong one for either causes real
+    problems.
+
 ## Priority
 
 **Principle 1 outranks every other principle in this baseline, including the
-other five below it** — it is not one of six equally-weighted rules, it is
-the lens the other five get read through. Apply the whole baseline whenever
-writing, restructuring, relocating, or reviewing documentation, but never use
-it to override explicit user instructions, safety rules, privacy boundaries,
-or stricter repo-local instructions — including a repo's own more specific
-documentation conventions.
+other fourteen below it** — it is not one of fifteen equally-weighted rules,
+it is the lens the other fourteen get read through. Apply the whole baseline
+whenever writing, restructuring, relocating, or reviewing documentation, but
+never use it to override explicit user instructions, safety rules, privacy
+boundaries, or stricter repo-local instructions — including a repo's own
+more specific documentation conventions.
 
 ## Non-Goals
 

@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:git-collaboration-hygiene v0.8.0 -->
+<!-- BEGIN baseline:git-collaboration-hygiene v0.9.0 -->
 ## Portable Agent Baseline: Git Collaboration Hygiene
 
 - Inspect repository state before changing or committing: check the active branch and working tree when Git is available, especially before edits, staging, commits, pulls, merges, rebases, or pushes.
@@ -29,6 +29,17 @@
 - Before declaring a branch/PR merge-ready or reporting work as pushed, run `git rev-list --count origin/<branch>..HEAD` (or equivalent) rather than trusting recollection of prior `git push` calls in the conversation.
 - Before committing/pushing directly to a repo reached through an indirect path (symlink chain, generated worktree, submodule), run `git remote -v` to confirm whether it's personally owned or a shared/team-owned repo; treat any non-personal remote as requiring the same review process as a teammate's PR, not a direct push.
 - When verifying a multi-branch integration/merge is complete, build it in a disposable integration worktree (merge N branches, resolve conflicts, build+test) and preview any predicted-but-unseen conflict on a throwaway branch first; then verify completeness by partitioning files into single-owner (cheap byte-diff) vs. shared (added-line diff) rather than one flat loop over all files times all branches.
+- Set up `.gitattributes`/`.gitignore` before the first commit on a repo meant for multi-machine sync, and audit that first commit's staged file list for tool-generated local config that slipped in.
+- Don't set a path-filtered CI check as a required merge gate: PRs that don't touch the filtered paths never trigger it and get stuck waiting forever — keep it informational, or make the job always run and early-exit-success when irrelevant.
+- Use `git rebase --onto`, not a plain rebase, when a branch is stacked on one that gets squash-merged into the base: a plain rebase onto the new base replays the now-squashed lower commits under stale hashes — use `git rebase --onto <new-base> <old-base> <branch>` and verify with `git range-diff` that only the upper branch's unique commits were carried.
+- Don't require N approvals in branch protection on a solo/near-solo-maintainer repo: most platforms disallow self-approval, so the rule locks the maintainer out of their own PRs — require PRs and block force-push/deletion, but set required approvals to 0 until there are enough people to expect a reviewer.
+- Scope `git stash -u` to explicit paths (`git stash push -u -- <paths>`) when moving work between branches, so untracked scratch/staging folders aren't swept along with it.
+- When two independent PRs both need to edit the same line of a shared file, don't edit it in both: merge one first, then rebase the other and add the shared-line edit as a follow-up commit.
+- Once a PR has a reviewer attached, treat push as a costly notification-triggering action: batch related changes, run full local verification, then push once, rather than pushing on every micro-edit.
+- When a reviewer's requested change conflicts with a decision the task owner already explicitly approved, don't resolve it unilaterally — present the conflict to the owner and wait for a re-decision before proceeding.
+- When a push is rejected because the remote has commits you don't have, fetch and merge them in rather than force-pushing — those remote commits may be someone else's real work, not just a stale ref.
+- Before concluding a hierarchical tracker's child item has no activity, also check whether the parent (or a sibling) has a misattached PR/commit — the detection-side companion to always referencing the child's own ID: the same wrong-level-reference mistake, made by someone else, is what you're checking for here.
+- Before pushing new commits to an already-approved review request, confirm whether the push resets approval (most tools do) and check with the decision-maker first rather than assuming approval carries forward.
 
 This baseline takes precedence over ordinary Git habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:git-collaboration-hygiene -->

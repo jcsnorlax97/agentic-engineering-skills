@@ -1,7 +1,7 @@
 # SQL Server Safety Baseline
 
 Status: active
-Version: 0.2.0
+Version: 0.3.0
 
 Always-on correctness rules for T-SQL an agent writes or hands off — diagnostic
 queries, verification queries, and data-fix/backfill scripts against SQL
@@ -112,6 +112,11 @@ predicate, unbounded scan).
     OneDrive-synced folders are a common trigger for this because they add
     extra nested path segments. Re-verify from a short-path clone before
     treating the failure as a real regression.
+
+13. Local temp tables (`#temp`) are session-scoped.
+    When re-running a multi-step script in pieces during manual testing,
+    close and reopen the database connection rather than manually cleaning
+    up temp tables, to guarantee a genuinely clean slate between runs.
 
 ## Priority
 

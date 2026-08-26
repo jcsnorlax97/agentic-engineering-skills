@@ -1,7 +1,7 @@
 # Vercel Operations Baseline
 
 Status: active
-Version: 0.3.0
+Version: 0.4.0
 
 This baseline installs operational habits for AI coding agents working on projects
 deployed to Vercel. It directs agents to use the Vercel CLI for observability tasks
@@ -54,6 +54,14 @@ Vercel dashboard.
    id under `projects[]`) instead of `.vercel/project.json`. Read both files
    when looking for the project or org id. (Learned 2026-07-05 in
    carman_church_website.)
+
+9. Re-check GitHub App repo-access grants after a GitHub account/org rename.
+   After a GitHub account/org rename, explicitly re-check and re-authorize
+   connected GitHub Apps' (e.g. Vercel's) repository-access grants. OAuth-based
+   auth keeps working via the internal account ID, so login and API calls may
+   appear fine, but a GitHub App's stored repo-access list does not
+   automatically follow the rename — deployments or repo-linked operations
+   can silently fail to see the renamed repo until the grant is refreshed.
 
 ## Priority
 

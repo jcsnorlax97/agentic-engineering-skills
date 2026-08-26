@@ -1,7 +1,7 @@
 # Git Collaboration Hygiene Baseline
 
 Status: active
-Version: 0.8.0
+Version: 0.9.0
 
 This is a tool-neutral always-on baseline for AI coding agents working in Git
 repositories. It captures collaboration safety that should apply before
@@ -203,6 +203,66 @@ workflow-specific PR, release, deploy, or multi-agent procedures.
     partitioning files into single-owner (cheap byte-diff) vs. shared
     (added-line diff) rather than one flat loop over all files times all
     branches.
+
+29. Set up `.gitattributes`/`.gitignore` before the first commit on a repo
+    meant for multi-machine sync, and audit that first commit's staged file
+    list for tool-generated local config that slipped in.
+
+30. Don't set a path-filtered CI check as a required merge gate.
+    PRs that don't touch the filtered paths never trigger it and get stuck
+    waiting forever. Keep it informational, or make the job always run and
+    early-exit-success when irrelevant.
+
+31. Use `git rebase --onto`, not a plain rebase, when a branch is stacked on
+    one that gets squash-merged into the base.
+    A plain rebase onto the new base replays the now-squashed lower commits
+    under stale hashes. Use `git rebase --onto <new-base> <old-base>
+    <branch>` and verify with `git range-diff` that only the upper branch's
+    unique commits were carried.
+
+32. Don't require N approvals in branch protection on a solo/near-solo-
+    maintainer repo.
+    Most platforms disallow self-approval, so the rule locks the maintainer
+    out of their own PRs. Require PRs and block force-push/deletion, but set
+    required approvals to 0 until there are enough people to expect a
+    reviewer.
+
+33. Scope `git stash -u` to explicit paths when moving work between
+    branches.
+    Use `git stash push -u -- <paths>` rather than a bare `-u`, so untracked
+    scratch/staging folders aren't swept along with it.
+
+34. When two independent PRs both need to edit the same line of a shared
+    file, don't edit it in both.
+    Merge one first, then rebase the other and add the shared-line edit as
+    a follow-up commit.
+
+35. Once a PR has a reviewer attached, treat push as a costly notification-
+    triggering action.
+    Batch related changes, run full local verification, then push once,
+    rather than pushing on every micro-edit.
+
+36. When a reviewer's requested change conflicts with a decision the task
+    owner already explicitly approved, don't resolve it unilaterally.
+    Present the conflict to the owner and wait for a re-decision before
+    proceeding.
+
+37. When a push is rejected because the remote has commits you don't have,
+    fetch and merge them in rather than force-pushing.
+    Those remote commits may be someone else's real work, not just a stale
+    ref.
+
+38. Before concluding a hierarchical tracker's child item has no activity,
+    also check whether the parent (or a sibling) has a misattached
+    PR/commit.
+    This is the detection-side companion to always referencing the child's
+    own ID (principle 19): the same wrong-level-reference mistake, made by
+    someone else, is what you're checking for here.
+
+39. Before pushing new commits to an already-approved review request,
+    confirm whether the push resets approval.
+    Most tools do. Check with the decision-maker first rather than assuming
+    approval carries forward.
 
 ## Priority
 

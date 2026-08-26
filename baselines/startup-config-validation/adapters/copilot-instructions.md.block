@@ -1,10 +1,11 @@
-<!-- BEGIN baseline:startup-config-validation v0.1.0 -->
+<!-- BEGIN baseline:startup-config-validation v0.2.0 -->
 ## Portable Agent Baseline: Startup Config Validation
 
 - Validate required config at startup: read and throw on every required configuration value (connection strings, API base URLs, auth credentials, Key Vault names) during service registration or app build — before the app starts serving — so a missing value surfaces as an immediate startup failure rather than a runtime error on first request.
 - Use ?? throw as the validation pattern: `var value = builder.Configuration["Section:Key"] ?? throw new InvalidOperationException("Section:Key is not configured.");` — do not silently default or defer.
 - Validate presence, not content: check that the key exists and is non-empty; do not validate format or semantics at startup unless the format error would otherwise be untraceable.
 - Exclude optional values: do not validate config keys that have safe in-code defaults or that are intentionally absent in some environments.
+- A .NET `Options<T>` class's `[Required]` data-annotation attributes are NOT enforced by plain `.Get<T>()` binding — explicitly wire `.ValidateDataAnnotations().ValidateOnStart()` on the options builder so a missing required value fails fast at startup instead of silently becoming a default/empty value.
 
 Apply this baseline before ordinary service-setup habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:startup-config-validation -->

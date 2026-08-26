@@ -1,8 +1,8 @@
 {
   "name": "sql-server-safety",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "status": "active",
-  "description": "Always-on SQL Server correctness rules for diagnostic, verification, and data-fix scripts: NOLOCK exceptions, CTE materialization, sargability, and read-only/mutate script discipline.",
+  "description": "Always-on SQL Server correctness rules for diagnostic, verification, and data-fix scripts: NOLOCK exceptions, CTE materialization, sargability, read-only/mutate script discipline, and session-scoped temp-table cleanup.",
   "source": {
     "title": "SQL Server Safety Baseline",
     "repository": "local",

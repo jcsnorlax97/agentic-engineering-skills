@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:sql-server-safety v0.2.0 -->
+<!-- BEGIN baseline:sql-server-safety v0.3.0 -->
 ## Portable Agent Baseline: SQL Server Safety
 
 - Never `NOLOCK` a LOB column (`nvarchar(max)`, `varchar(max)`, `xml`, etc.) read under concurrent writes — it can return a torn/inconsistent read. Scope `NOLOCK` to small fixed-size columns only, or use snapshot isolation when LOB columns must be read under load.
@@ -13,6 +13,7 @@
 - To determine a table's true row-uniqueness or grain, query `sys.indexes`/`sys.index_columns` directly for the actual constraint — don't infer uniqueness from column, table, or foreign-key names.
 - Before writing raw SQL to repair a data-integrity gap in a live/shared environment, check whether the application already exposes a validated write endpoint/command for that exact operation, and prefer it over raw SQL — it's already validated and sidesteps environment/server-identity uncertainty.
 - A `Microsoft.Data.SqlClient` DLL-load failure (SNI native DLL, e.g. `DllNotFoundException`/`0x800700CE`) on a deeply-nested working-directory path (OneDrive-synced folders are a common trigger) is a Windows path-length artifact, not a code regression — re-verify from a short-path clone before treating it as real.
+- Local temp tables (`#temp`) are session-scoped — when re-running a multi-step script in pieces during manual testing, close and reopen the database connection rather than manually cleaning up temp tables, to guarantee a genuinely clean slate between runs.
 
 Apply this baseline before ordinary SQL-authoring habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:sql-server-safety -->

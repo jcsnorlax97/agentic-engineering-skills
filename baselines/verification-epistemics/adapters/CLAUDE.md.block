@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:verification-epistemics v0.3.0 -->
+<!-- BEGIN baseline:verification-epistemics v0.4.0 -->
 ## Portable Agent Baseline: Verification Epistemics
 
 - A "confirmed" claim inherited from a prior session, a stale docs branch, or a teammate's description is a starting hypothesis, not a fact — re-check it against current code/data before acting on it, especially crossing a service/repo boundary or a fast-changing system.
@@ -35,6 +35,29 @@
 - Before finalizing any output built from fresh research (a new note, a conclusion, a recommendation), search the relevant existing notes/vault areas for prior coverage of the same specific question.
 - Before performing an action type known to have a stored feedback/mistake memory, load and apply that memory proactively before the action, not as a post-hoc check.
 - One ad hoc pass or grep is not proof of completeness when sweeping a whole surface for remaining references/artifacts (e.g. removing a deprecated subsystem, finding all stranded commits across remote branches) — run a parameterized, re-run-until-zero-new-hits sweep across the full surface instead of incremental ad hoc checks.
+- Immediately after fixing a bug in a specific category (missing null/boundary check, etc.), consciously re-review the next new code you write for the same category — having just fixed one instance doesn't make you immune to writing another.
+- To attribute an unexpected output-field change to code vs. data, use diff shape as the first signal: absent→present usually means a code/schema change (trace the commit that added the field); value→value usually means a data/config change (check the record's updated/editor metadata).
+- When credible sources conflict on a number, identify the differing methodology/scope first, then present both figures side by side with their scope labeled, rather than silently picking one.
+- Don't infer whether code is legacy/dead from its name or folder location; verify via git-blame recency, config default value, and actual usages/wiring in the target environment before removing/disabling it.
+- To judge whether a running process/build reflects a source change, compare source mtime vs. build-artifact mtime vs. process-start time as objective evidence, rather than guessing from a stale-looking screenshot.
+- For an enumerable identifier accepted by a validating host (icon name, capability flag, widget type), verify against the host's actual runtime registry/enum, not the SDK's declared type or a reference prototype — the SDK type is typically an upper bound on what the host accepts.
+- Assess missing/substituted data's impact by the model's sensitivity to the specific missing segment, not by the proportion of data missing — a small % of missing tail/extreme values can bias tail statistics far more than their share suggests.
+- A half-remembered citation ("I recall X said...") is a human-sourced non-canonical claim — hold it as a flagged, unconfirmed note, never promote it into a durable rule/policy, until the original source is traced and confirmed.
+- Treat a root-cause explanation that conveniently exonerates the code under test, or matches the preferred conclusion, as a signal to raise the verification bar, not lower it — trace the actual execution path before dismissing on it.
+- When a feature breaks only via a new API entry point that looks structurally identical to an old one, diff the two full call chains (entry→dispatch→resolver) layer by layer rather than stopping once outer layers look alike.
+- Before fixing a shared field's type based on the one call site that crashed, enumerate every producer's actual value domain from the code itself, and design the fix to cover the full domain, not just the observed case.
+- When two root-cause candidates both fit the timeline, rank them by precise timestamp correlation strength (minutes vs. hours from independent sources) rather than by which sounds more like a familiar technical failure mode.
+- Same input succeeding on another record while this one fails is a strong signal to redirect diagnosis from "missing reference data" toward "a later operation overwrote/wiped this record."
+- Check template/checklist compliance by comparing section-by-section against the literal template text, not an overall skim; a "please re-check" request from the user is itself a signal to switch from skim to literal-pass method.
+- After renaming or moving a source location others point at, resolve (not just list) each downstream pointer to confirm the target actually exists — a correct link *type* does not mean it resolves.
+- When threading an extraction/filter's scope through a multi-stage pipeline, re-check each stage against the *original* requested scope, not just against the previous stage's output — scope can silently narrow or drift stage to stage.
+- Before assuming a piece of information requires an external party or another team to answer, search your own team's existing tickets/records first — the answer may already be documented there.
+- When auditing whether a migration/rollout is complete, individually verify cross-cutting concerns unrelated to its stated theme (auth mechanism, routing, secrets) — completing the migration's named scope does not imply they were updated too. (This also covers the sibling case: a downstream service 404ing for a specific tenant despite correct provider/integration-layer config may indicate a separate, independent "tenant onboarding" step — check for it as its own precondition rather than assuming the provider-layer config is incomplete.)
+- A hostname resolving successfully via DNS is not evidence it was ever used — check the zone for a wildcard (`*.domain`) record before treating resolution as proof of use; verify via access logs or the owning team instead.
+- When a spec's prose reads as functionally identical for two similar options even after a re-read, stop re-reading the spec and check whether an adopter's own (non-spec-author) documentation has already made and consistently applied a classification between them.
+- A closeout/retrospective review pass needs a fixed multi-category checklist (unclassified statements, session self-inconsistency, dedup-vs-existing-records) run every time, not a single-direction scan repeated only until someone asks "anything else?"
+- When new evidence downgrades the severity of one finding in a batch of similarly-reported findings, scope the downgraded language explicitly to that one finding and state the others retain their original severity — don't let softened tone bleed across the batch by default.
+- Before shipping a fix for a reported-but-not-directly-observed symptom, build a direct reproduction of the exact failure, confirm it shows the problem, then re-run that *same* reproduction after the fix — a plausible proxy check on an adjacent code path is not a substitute for re-triggering the original symptom.
 
 Apply this baseline before presenting a conclusion or summary of "what's true here," but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:verification-epistemics -->

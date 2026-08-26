@@ -1,10 +1,11 @@
-<!-- BEGIN baseline:oop-extension-safety v0.3.0 -->
+<!-- BEGIN baseline:oop-extension-safety v0.4.0 -->
 ## Portable Agent Baseline: OOP Extension Safety
 
 - Complete the template method: when a base class introduces a `protected abstract` or `virtual` hook, every code path in the base class that involves that decision must route through the hook — a direct field call bypasses virtual dispatch silently.
 - Prefer primitive hook parameters: abstract and virtual hook methods should accept the smallest set of primitives needed, not a whole aggregate object; aggregate parameters tie the hook to one caller shape and force bypass code paths when a second caller exists.
 - Mock the most-specific injected type: test doubles should mock the exact concrete class or interface registered in DI, not a base class — mocking a base class can satisfy the injection site while hiding that the production code injects the wrong subtype.
 - Declare concrete delegate types at the class level: when a class varies only in which concrete types it delegates to (not in algorithms), express that variation through type parameters or equivalent declaration-level constructs rather than constructor parameters alone — a constructor parameter silently accepts any assignable subtype, while a type parameter is visible in every diff and review.
+- Prefer a DI-wired subclass hook over an inline caller-type check: when a shared class needs different behavior for a specific caller, prefer a `protected virtual` hook overridden by a DI-wired subclass over checking the caller's concrete type inline — the caller-specific coupling becomes visible at the constructor/DI level instead of buried in logic that reads as caller-agnostic.
 
 This baseline takes precedence over ordinary implementation and test-writing habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:oop-extension-safety -->

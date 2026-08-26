@@ -40,7 +40,7 @@ These principles are folder-name-agnostic. If the repo specifies where documenta
 This baseline takes precedence over ordinary implementation habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:code-doc-sync -->
 
-<!-- BEGIN baseline:git-collaboration-hygiene v0.8.0 -->
+<!-- BEGIN baseline:git-collaboration-hygiene v0.9.0 -->
 ## Portable Agent Baseline: Git Collaboration Hygiene
 
 - Inspect repository state before changing or committing: check the active branch and working tree when Git is available, especially before edits, staging, commits, pulls, merges, rebases, or pushes.
@@ -71,17 +71,29 @@ This baseline takes precedence over ordinary implementation habits, but never us
 - Before declaring a branch/PR merge-ready or reporting work as pushed, run `git rev-list --count origin/<branch>..HEAD` (or equivalent) rather than trusting recollection of prior `git push` calls in the conversation.
 - Before committing/pushing directly to a repo reached through an indirect path (symlink chain, generated worktree, submodule), run `git remote -v` to confirm whether it's personally owned or a shared/team-owned repo; treat any non-personal remote as requiring the same review process as a teammate's PR, not a direct push.
 - When verifying a multi-branch integration/merge is complete, build it in a disposable integration worktree (merge N branches, resolve conflicts, build+test) and preview any predicted-but-unseen conflict on a throwaway branch first; then verify completeness by partitioning files into single-owner (cheap byte-diff) vs. shared (added-line diff) rather than one flat loop over all files times all branches.
+- Set up `.gitattributes`/`.gitignore` before the first commit on a repo meant for multi-machine sync, and audit that first commit's staged file list for tool-generated local config that slipped in.
+- Don't set a path-filtered CI check as a required merge gate: PRs that don't touch the filtered paths never trigger it and get stuck waiting forever — keep it informational, or make the job always run and early-exit-success when irrelevant.
+- Use `git rebase --onto`, not a plain rebase, when a branch is stacked on one that gets squash-merged into the base: a plain rebase onto the new base replays the now-squashed lower commits under stale hashes — use `git rebase --onto <new-base> <old-base> <branch>` and verify with `git range-diff` that only the upper branch's unique commits were carried.
+- Don't require N approvals in branch protection on a solo/near-solo-maintainer repo: most platforms disallow self-approval, so the rule locks the maintainer out of their own PRs — require PRs and block force-push/deletion, but set required approvals to 0 until there are enough people to expect a reviewer.
+- Scope `git stash -u` to explicit paths (`git stash push -u -- <paths>`) when moving work between branches, so untracked scratch/staging folders aren't swept along with it.
+- When two independent PRs both need to edit the same line of a shared file, don't edit it in both: merge one first, then rebase the other and add the shared-line edit as a follow-up commit.
+- Once a PR has a reviewer attached, treat push as a costly notification-triggering action: batch related changes, run full local verification, then push once, rather than pushing on every micro-edit.
+- When a reviewer's requested change conflicts with a decision the task owner already explicitly approved, don't resolve it unilaterally — present the conflict to the owner and wait for a re-decision before proceeding.
+- When a push is rejected because the remote has commits you don't have, fetch and merge them in rather than force-pushing — those remote commits may be someone else's real work, not just a stale ref.
+- Before concluding a hierarchical tracker's child item has no activity, also check whether the parent (or a sibling) has a misattached PR/commit — the detection-side companion to always referencing the child's own ID: the same wrong-level-reference mistake, made by someone else, is what you're checking for here.
+- Before pushing new commits to an already-approved review request, confirm whether the push resets approval (most tools do) and check with the decision-maker first rather than assuming approval carries forward.
 
 This baseline takes precedence over ordinary Git habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:git-collaboration-hygiene -->
 
-<!-- BEGIN baseline:oop-extension-safety v0.3.0 -->
+<!-- BEGIN baseline:oop-extension-safety v0.4.0 -->
 ## Portable Agent Baseline: OOP Extension Safety
 
 - Complete the template method: when a base class introduces a `protected abstract` or `virtual` hook, every code path in the base class that involves that decision must route through the hook — a direct field call bypasses virtual dispatch silently.
 - Prefer primitive hook parameters: abstract and virtual hook methods should accept the smallest set of primitives needed, not a whole aggregate object; aggregate parameters tie the hook to one caller shape and force bypass code paths when a second caller exists.
 - Mock the most-specific injected type: test doubles should mock the exact concrete class or interface registered in DI, not a base class — mocking a base class can satisfy the injection site while hiding that the production code injects the wrong subtype.
 - Declare concrete delegate types at the class level: when a class varies only in which concrete types it delegates to (not in algorithms), express that variation through type parameters or equivalent declaration-level constructs rather than constructor parameters alone — a constructor parameter silently accepts any assignable subtype, while a type parameter is visible in every diff and review.
+- Prefer a DI-wired subclass hook over an inline caller-type check: when a shared class needs different behavior for a specific caller, prefer a `protected virtual` hook overridden by a DI-wired subclass over checking the caller's concrete type inline — the caller-specific coupling becomes visible at the constructor/DI level instead of buried in logic that reads as caller-agnostic.
 
 This baseline takes precedence over ordinary implementation and test-writing habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:oop-extension-safety -->
@@ -139,7 +151,7 @@ stricter repo-local instructions.
 This baseline takes precedence over ordinary commit habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions (including a repository's own established commit convention).
 <!-- END baseline:commit-conventions -->
 
-<!-- BEGIN baseline:agent-orchestration v0.1.0 -->
+<!-- BEGIN baseline:agent-orchestration v0.2.0 -->
 ## Portable Agent Baseline: Agent Orchestration
 
 - Before relying on a dispatched sub-agent's `isolation: "worktree"` option to cover work in a repo other than the current session's own, don't assume it covers that other repo — verify the mechanism's actual scope, or create the worktree explicitly in the target repo yourself and hand the agent that literal path.
@@ -147,11 +159,14 @@ This baseline takes precedence over ordinary commit habits, but never use it to 
 - When multiple parallel background agents are working toward one time-sensitive answer, post an interim synthesis of whatever is already solid as soon as it exists, explicitly labeled partial, then layer each subsequent completion on as a scoped update rather than withholding everything until the last agent finishes.
 - When a safety-classifier block hits an IAM- or secret-adjacent write, stop and hand the user the exact command/value rather than routing around it via another tool or approach — and don't assume a later identical attempt will fail the same way, since classifier behavior isn't fully deterministic.
 - Before appending a sequentially-numbered entry to a shared memory/log file that more than one concurrent session could touch, grep the file for that exact ordinal immediately before writing (not a value read earlier in the conversation); on collision, disambiguate explicitly rather than inventing a corrected total order.
+- Before dispatching a background/sub-agent, confirm no other executor (the user's own session, another already-running agent) is already working the same target — especially when the user's phrasing about who did what is ambiguous.
+- Before reapplying a fix to shared/base code in a multi-session project, check whether a prior session already tried and explicitly reverted that exact fix (commit messages, PR descriptions, prior capture notes) — a new session does not automatically inherit that history.
+- An early step in a sequenced/multi-step process that narrates what a later step in the same run will do describes a plan, not a result — either move that narration to run last, or explicitly re-verify and update it against the sequence's actual final outcome before considering the run complete.
 
 Apply this baseline before dispatching, coordinating, or reporting on sub-agent/background-agent work, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions. This does not cover which agent/model to pick, or prompt-engineering content quality — only dispatch/coordination/scope mechanics.
 <!-- END baseline:agent-orchestration -->
 
-<!-- BEGIN baseline:documentation-craft v0.2.0 -->
+<!-- BEGIN baseline:documentation-craft v0.3.0 -->
 ## Portable Agent Baseline: Documentation Craft
 
 - **[Top-priority principle — outranks the rest below.]** Use one word if it conveys what two would; two words if they convey what more than two would; one sentence if it conveys what more than one would — apply this recursively at every level (word, phrase, clause, sentence, paragraph, section), not just once. Length is not neutral; it's the default this principle pushes back against. Does not apply to durable audit/decision records (ADRs, incident writeups, handoff docs) where completeness outweighs brevity.
@@ -160,6 +175,15 @@ Apply this baseline before dispatching, coordinating, or reporting on sub-agent/
 - When a follow-up documentation request spans or sequences multiple existing units rather than adding depth to any single one, recognize it as a shift in information grain and create a new parallel category instead of forcing it into an existing file.
 - When writing or relocating documentation that spans "how the system generally works" and "how this one tool/consumer uses it," place general system knowledge in the producer's repo (linked from the consumer) and keep only tool-specific content in the consumer's repo — decide per section (would this be equally true for a different consumer of the same system?), not by where the need first arose.
 - Inline bug-fix code comments should be a short "does X — previously did Y" statement in 1-2 sentences with no duplicated phrasing or ambiguous reused terms; move full audit-trail/cross-validation evidence to a separate durable doc, never inline in the comment itself — this is the top-priority principle above, applied specifically to code comments.
+- When adding content to a file in the agent's mandatory-read path (a CLAUDE.md/AGENTS.md-style file read every session), ask whether it needs to be fresh every session; if not, externalize it to its own file with a one-line pointer left in place — the mandatory-read path is a scarce attention budget, not just another place to put things.
+- For a highly personalized document (a persona, a voice/style guide, a decision doctrine), elicit its content through layered guided discussion and write each layer to file as soon as it's agreed, rather than discussing everything first and writing once at the end.
+- When writing any durable file, a reference must resolve to either inlined content or another durable file's path — never to ephemeral session/conversation context ("see earlier discussion"), which becomes a dead pointer the moment the session ends.
+- When one underlying change must inform two audiences with genuinely different needs (a reviewer deciding whether to approve, a learner absorbing what to do differently), write two separate documents rather than forcing both purposes into one.
+- When content is deliberately duplicated across multiple files (each adapted per destination), propagate a substantive correction to every copy, not just the one explicitly pointed out — check for sibling duplicates before considering a fix done.
+- Default decision/change-dense technical documents in general — not only PR descriptions or review comments — to bolded-label point form when the content is structurally a list of discrete points; choose format by the content's actual structure, not by document type or length.
+- After several rounds of incremental, localized edits to the same document, do one full linear read-through before finishing — per-edit review only catches whether each addition is correct in isolation, not whether the document's ordering and cross-references still hold (e.g. a conclusion that cites content added after it).
+- When a resolved decision record is superseded, append a dated "superseded" block in place, preserving the original reasoning, rather than rewriting the file or forking to a new one.
+- Before correcting an outdated document, classify it first: a point-in-time snapshot (annotate/point to the current source, leave the body's original reasoning unchanged) or a continuously-maintained reference (correct in place, dated) — the two natures require opposite correction strategies, and using the wrong one for either causes real problems.
 
 Apply this baseline whenever writing, restructuring, relocating, or reviewing documentation, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions. This does not cover code/doc sync (see `code-doc-sync`) or living-handoff-document lifecycle (see `handoff-doc-discipline`).
 <!-- END baseline:documentation-craft -->

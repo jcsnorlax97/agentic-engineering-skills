@@ -1,7 +1,7 @@
 # Startup Config Validation Baseline
 
 Status: active
-Version: 0.1.0
+Version: 0.2.0
 
 Always-on fail-fast posture for configuration validation in services. Applies
 to any application that reads configuration from environment variables, config
@@ -38,6 +38,13 @@ in CI and deployment smoke tests.
    Do not validate config keys that have safe in-code defaults or that are
    intentionally absent in some environments. Only keys whose absence would
    cause a silent failure or confusing error belong in startup validation.
+
+5. Wire `ValidateDataAnnotations().ValidateOnStart()` for `[Required]` Options.
+   A .NET `Options<T>` class's `[Required]` data-annotation attributes are NOT
+   enforced by plain `.Get<T>()` binding — explicitly wire
+   `.ValidateDataAnnotations().ValidateOnStart()` on the options builder so a
+   missing required value fails fast at startup instead of silently becoming
+   a default/empty value.
 
 ## Priority
 

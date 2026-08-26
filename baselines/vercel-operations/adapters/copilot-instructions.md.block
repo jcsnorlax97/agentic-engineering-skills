@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:vercel-operations v0.3.0 -->
+<!-- BEGIN baseline:vercel-operations v0.4.0 -->
 ## Portable Agent Baseline: Vercel Operations
 
 - Prefer CLI over dashboard: when `vercel` CLI is available, use `vercel logs`, `vercel inspect`, and `vercel env ls` instead of asking the user to copy-paste from the dashboard.
@@ -9,6 +9,7 @@
 - Stable per-branch preview URL: use `POST /v10/projects/{id}/domains` with `{"name": "<sub>.vercel.app", "gitBranch": "<branch>"}` — prefer this over auto-generated `-git-<branch>-` aliases, which get length-truncated.
 - Preview Deployment Protection: preview deployments 302-redirect to Vercel SSO login by default; check this before sharing a preview or INT link with a client. Disabling it is a security decision the user must make explicitly.
 - `vercel link` project file: `vercel link --yes` may create `.vercel/repo.json` (project id under `projects[]`) instead of `.vercel/project.json`; read both when looking for the project or org id.
+- After a GitHub account/org rename, explicitly re-check and re-authorize connected GitHub Apps' (e.g. Vercel's) repository-access grants — OAuth-based auth keeps working via the internal account ID, but a GitHub App's stored repo-access list does not automatically follow the rename.
 
 This baseline takes precedence over ordinary implementation habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:vercel-operations -->

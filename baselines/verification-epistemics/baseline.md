@@ -1,7 +1,7 @@
 # Verification Epistemics Baseline
 
 Status: active
-Version: 0.3.0
+Version: 0.4.0
 
 Always-on discipline for a recurring failure mode: treating an inherited,
 paraphrased, or confidently-stated claim as verified fact without checking it
@@ -300,6 +300,185 @@ producing a wrong conclusion that direct verification would have caught.
     re-run it until it returns zero new hits, instead of treating one
     incremental ad hoc check as sufficient.
 
+35. Immediately after fixing a bug in a specific category, deliberately
+    re-review the next new code you write for that same category.
+    Having just fixed one instance of a missing null check, boundary
+    check, or similar category of bug doesn't make you immune to writing
+    another instance of it minutes later — consciously re-review the next
+    new code you write for the same category rather than assuming the fix
+    itself raised your guard.
+
+36. Use diff shape as the first signal when attributing an unexpected
+    output-field change to code vs. data.
+    When a field's value changes unexpectedly, check whether the diff is
+    absent→present or value→value before investigating further:
+    absent→present usually means a code/schema change (trace the commit
+    that added the field), while value→value usually means a data/config
+    change (check the record's updated/editor metadata) — this narrows
+    where to look before spending time on the wrong side.
+
+37. When credible sources conflict on a number, identify the differing
+    methodology or scope before presenting a figure.
+    Don't silently pick one source over another — identify the
+    differing methodology or scope behind each figure first, then
+    present both figures side by side with their scope labeled, so the
+    reader can see why they diverge instead of receiving a single
+    unexplained number.
+
+38. Don't infer whether code is legacy or dead from its name or folder
+    location alone.
+    A name like `_deprecated` or a folder called `legacy/` is a hint, not
+    proof — verify via git-blame recency, the config's actual default
+    value, and real usages/wiring in the target environment before
+    removing or disabling it.
+
+39. To judge whether a running process or build reflects a source change,
+    compare mtimes and process-start time as objective evidence.
+    Compare source file mtime vs. build-artifact mtime vs. process-start
+    time to determine whether a running process or build actually
+    reflects a given source change, rather than guessing from a
+    stale-looking screenshot or the developer's memory of when they last
+    deployed.
+
+40. Verify an enumerable identifier against the host's actual runtime
+    registry, not the SDK's declared type or a reference prototype.
+    For an enumerable identifier accepted by a validating host (an icon
+    name, a capability flag, a widget type), check the host's actual
+    runtime registry or enum rather than trusting the SDK's declared type
+    or a reference prototype — the SDK type is typically an upper bound
+    on what the host actually accepts, not a guarantee every listed value
+    works.
+
+41. Assess missing or substituted data's impact by the model's sensitivity
+    to the specific missing segment, not by the proportion missing.
+    A small percentage of missing tail or extreme values can bias tail
+    statistics far more than their share of the dataset would suggest —
+    judge impact by what the analysis is sensitive to, not by treating a
+    low missing-data percentage as automatically low-risk.
+
+42. Hold a half-remembered citation as a flagged, unconfirmed note until
+    the original source is traced and confirmed.
+    A half-remembered citation ("I recall X said...") is a
+    human-sourced, non-canonical claim — never promote it into a durable
+    rule or policy until you've traced it back to and confirmed the
+    original source; until then it stays a flagged, unconfirmed note.
+
+43. Treat a conveniently exonerating or preferred-conclusion root-cause
+    explanation as a signal to raise the verification bar.
+    When a root-cause explanation conveniently exonerates the code under
+    test, or happens to match the conclusion you were hoping for, treat
+    that as a reason to raise the verification bar rather than lower it —
+    trace the actual execution path before dismissing the issue on the
+    strength of a convenient explanation.
+
+44. Diff two structurally similar call chains layer by layer, not just
+    at the outer layers, when a feature breaks via one but not the other.
+    When a feature breaks only through a new API entry point that looks
+    structurally identical to an old, working one, diff the two full call
+    chains (entry → dispatch → resolver) layer by layer rather than
+    stopping the comparison once the outer layers look alike — the
+    divergence is often deeper in the chain.
+
+45. Enumerate every producer's actual value domain from the code before
+    fixing a shared field's type based on one crashing call site.
+    Before fixing a shared field's type based on the one call site that
+    crashed, enumerate every producer's actual value domain directly from
+    the code, and design the fix to cover the full domain rather than
+    just the observed crashing case.
+
+46. Rank competing root-cause candidates by precise timestamp correlation
+    strength, not by which sounds like a familiar failure mode.
+    When two root-cause candidates both fit the overall timeline, rank
+    them by precise timestamp correlation strength (minutes vs. hours,
+    drawn from independent sources) rather than by which one sounds more
+    like a familiar technical failure mode.
+
+47. Treat "the same input succeeds on another record" as a signal to look
+    for an overwrite, not for missing reference data.
+    When the same input succeeds on another record but fails on this one,
+    redirect diagnosis away from "missing reference data" and toward "a
+    later operation overwrote or wiped this specific record" — success
+    elsewhere with identical input rules out a systemic data gap.
+
+48. Check template or checklist compliance section-by-section against the
+    literal template text, not by an overall skim.
+    Compare each section of the deliverable against the literal template
+    text one at a time rather than skimming the whole document for a
+    general impression; a user's "please re-check" request is itself a
+    signal to switch from skim to a literal, section-by-section pass.
+
+49. After renaming or moving a source location, resolve — not just list —
+    each downstream pointer to confirm the target actually exists.
+    After renaming or moving a source location that others point at,
+    actually resolve each downstream pointer to confirm the target
+    exists, rather than just listing the pointers and confirming they
+    have the correct type — a correctly typed link does not mean it
+    resolves.
+
+50. Re-check each pipeline stage's scope against the original requested
+    scope, not just against the previous stage's output.
+    When threading an extraction or filter's scope through a multi-stage
+    pipeline, re-check each stage against the *original* requested scope
+    rather than only against the previous stage's output — scope can
+    silently narrow or drift from stage to stage even when each
+    individual transition looks correct.
+
+51. Search your own team's existing tickets and records before assuming a
+    question requires an external party or another team.
+    Before assuming a piece of information requires reaching out to an
+    external party or another team, search your own team's existing
+    tickets and records first — the answer may already be documented
+    there.
+
+52. Individually verify cross-cutting concerns unrelated to a migration's
+    stated theme when auditing whether it's complete.
+    When auditing whether a migration or rollout is complete, individually
+    verify cross-cutting concerns unrelated to its stated theme (auth
+    mechanism, routing, secrets) — completing the migration's named scope
+    does not imply those were updated too. This also covers the sibling
+    case: a downstream service 404ing for a specific tenant despite
+    correct provider/integration-layer config may indicate a separate,
+    independent "tenant onboarding" step — check for it as its own
+    precondition rather than assuming the provider-layer config is
+    incomplete.
+
+53. Check the DNS zone for a wildcard record before treating successful
+    resolution as evidence a hostname was ever used.
+    A hostname resolving successfully via DNS is not evidence it was ever
+    used — check the zone for a wildcard (`*.domain`) record before
+    treating resolution as proof of use, and verify actual use via access
+    logs or the owning team instead.
+
+54. When a spec reads as functionally identical for two similar options
+    even after a re-read, check an adopter's own documentation instead.
+    When a spec's prose reads as functionally identical for two similar
+    options even after a re-read, stop re-reading the spec and check
+    whether an adopter's own (non-spec-author) documentation has already
+    made and consistently applied a classification between them.
+
+55. Run a closeout/retrospective review pass against a fixed multi-category
+    checklist every time, not a single-direction scan.
+    A closeout or retrospective review pass needs a fixed multi-category
+    checklist (unclassified statements, session self-inconsistency,
+    dedup-vs-existing-records) run every time, not a single-direction
+    scan repeated only until someone asks "anything else?"
+
+56. Scope a severity downgrade explicitly to the one finding it applies
+    to; don't let softened tone bleed across a batch.
+    When new evidence downgrades the severity of one finding in a batch of
+    similarly-reported findings, scope the downgraded language explicitly
+    to that one finding and state that the others retain their original
+    severity — don't let softened tone bleed across the whole batch by
+    default.
+
+57. Reproduce a reported symptom directly, confirm it, fix it, then
+    re-run the same reproduction — a proxy check is not a substitute.
+    Before shipping a fix for a reported-but-not-directly-observed
+    symptom, build a direct reproduction of the exact failure, confirm it
+    shows the problem, then re-run that *same* reproduction after the fix
+    — a plausible proxy check on an adjacent code path is not a
+    substitute for re-triggering the original symptom.
+
 ## Priority
 
 Apply this baseline before presenting a conclusion, a fix, or a summary of
@@ -313,3 +492,11 @@ safety rules, privacy boundaries, or stricter repo-local instructions.
   boundary (prior session, stale doc, another person's description).
 - This does not replace domain-specific investigation techniques; it's the
   general discipline underneath them.
+
+## Editorial note
+
+This baseline has grown very large (57 principles) across two consolidation
+passes in one day. It likely needs a structural/consolidation pass —
+grouping principles into sub-categories and merging near-duplicates —
+before further additions. Flagging this for a future maintainer; not
+acted on here.

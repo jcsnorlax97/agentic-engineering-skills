@@ -1,7 +1,7 @@
 # PowerShell Conventions Baseline
 
 Status: active
-Version: 0.1.0
+Version: 0.2.0
 
 Always-on PowerShell correctness rules for scripts that must behave the same
 way across PowerShell versions (Windows PowerShell 5.1 and `pwsh` 7+) and, for
@@ -44,6 +44,18 @@ runtime or OS than the one used during development.
    3+-arg form. A script whose compatibility contract says "Windows only"
    doesn't need this discipline, but forward slashes cost nothing there
    either and remove the bug class for free if that contract ever changes.
+
+3. Quote a literal `@`-prefixed string argument passed to a PowerShell
+   command.
+   Unquoted, it's parsed as splatting syntax and the argument is silently
+   dropped rather than passed through.
+
+4. On Windows via git-bash/MSYS, `ln -s` to create a new symlink can
+   silently no-op.
+   No error is thrown, and a sandbox override does not help. Use
+   PowerShell's `New-Item -ItemType SymbolicLink` instead, and confirm
+   success with `Get-Item <path> | Select LinkType` rather than trusting the
+   no-error exit code.
 
 ## Priority
 

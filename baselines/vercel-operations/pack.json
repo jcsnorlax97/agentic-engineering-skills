@@ -1,8 +1,8 @@
 {
   "name": "vercel-operations",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "status": "active",
-  "description": "Operational habits for projects deployed to Vercel: use CLI for logs and status instead of asking the user to copy-paste from the dashboard.",
+  "description": "Operational habits for projects deployed to Vercel: use CLI for logs and status instead of asking the user to copy-paste from the dashboard, and re-check connected GitHub Apps' repo-access grants after a GitHub account/org rename.",
   "adapters": {
     "codex": "adapters/AGENTS.md.block",
     "claude": "adapters/CLAUDE.md.block",

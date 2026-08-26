@@ -1,7 +1,7 @@
 # Agent Orchestration Baseline
 
 Status: active
-Version: 0.1.0
+Version: 0.2.0
 
 Always-on discipline for dispatching, coordinating, and communicating around
 AI sub-agents and background agents — the mechanics of handing work to another
@@ -63,6 +63,32 @@ might also be writing to.
    time the write actually happens. On collision, disambiguate explicitly
    (e.g. a suffix or a note) rather than inventing a corrected total order
    that silently renumbers another session's entry.
+
+6. Confirm no other executor is already on the same target before dispatching.
+   Before dispatching a background/sub-agent, confirm no other executor —
+   the user's own session, another already-running agent — is already
+   working the same target, especially when the user's phrasing about who
+   did what is ambiguous. Dispatching blind onto a target someone else is
+   already mid-way through risks duplicated work, colliding writes, or a
+   report that contradicts what the other executor is about to produce.
+
+7. Check whether a fix to shared/base code was already tried and reverted
+   before reapplying it in a multi-session project.
+   Before reapplying a fix to shared/base code in a multi-session project,
+   check whether a prior session already tried and explicitly reverted that
+   exact fix — commit messages, PR descriptions, prior capture notes. A new
+   session does not automatically inherit that history, so absence of a
+   memory of the revert is not evidence the revert never happened.
+
+8. Treat mid-run narration of a later step as a plan, not a result, until
+   the run finishes.
+   An early step in a sequenced/multi-step process that narrates what a
+   later step in the same run will do describes a plan, not a result —
+   either move that narration to run last, or explicitly re-verify and
+   update it against the sequence's actual final outcome before considering
+   the run complete. Reporting the planned outcome as if it already happened
+   is a false-confirmation risk if a later step fails, changes course, or is
+   skipped.
 
 ## Priority
 

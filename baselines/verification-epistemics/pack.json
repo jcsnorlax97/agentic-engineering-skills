@@ -1,6 +1,6 @@
 {
   "name": "verification-epistemics",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "status": "active",
   "description": "Always-on epistemic discipline: don't act on an inherited, paraphrased, or prior-session claim without re-verifying it against current ground truth.",
   "source": {
