@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:dotnet-conventions v0.3.0 -->
+<!-- BEGIN baseline:dotnet-conventions v0.4.0 -->
 ## Portable Agent Baseline: .NET Conventions
 
 - Use `Add*`, not `TryAdd*`, when registering every implementation of a multi-implementation interface (one resolved as `IEnumerable<T>`, e.g. a strategy pattern) — `TryAdd*` dedups by service type alone and silently no-ops a second implementation, with no error.
@@ -18,6 +18,13 @@
 - Before naming a new shared abstraction merged from separate call sites, check the domain model's existing vocabulary (status fields, enums, doc comments) for a narrower established meaning tied to only one of the call sites — prefer a mechanical/structural name over a state-implying one when call sites don't uniformly share that state.
 - An idempotency/replay short-circuit that finds a record by key must separately validate the record's current state (status/expiry) before reusing it in a response — existence at that key is not the same as still being valid to reuse.
 - When auditing every call-site of a conditional credential-routing system (e.g. multiple HttpClient configurations), enumerate every method x its actual routing rule from the code itself (not memory) into a full table separating "by-design", "correctly exempted", and "should-be-exempted-but-isn't" — don't spot-check.
+- When writing/updating a parent and its child in one operation, check the ORM model for an existing navigation property before doing a manual second save — attach the child to the parent's navigation property before the first save so the change tracker resolves the foreign key in one call.
+- Before adding an operation to a versioned/public SDK/API interface, confirm a real consumer exists — symmetry or completeness alone is not justification, and new work should extend the live interface, not a deprecated parallel one.
+- Don't serialize a value into a shared/generic field only to immediately deserialize it back within the next step of the same operation — pass a typed object/property directly; reserve serialization for genuine cross-boundary handoffs (cross-process, cross-time, external API).
+- When adding a field to a widely-implemented shared interface, a green build is the minimum bar, not sufficient proof: separately verify (1) every concrete implementation was actually updated, (2) a reflection-based test-data generator targeting the bare interface won't fail at runtime for unregistered concrete types, and (3) if the new field carries sensitive data, it needs its own masking/redaction tag — it does not inherit protection from wherever it was previously nested.
+- A shared "sync whole object graph" update method must not treat a missing/null collection on the input object as "clear this in the DB" when narrow-purpose callers pass partial objects — narrow callers should re-fetch the full object and mutate only their own field, not hand a partial object to a full-sync method.
+- Before attaching a shared request/response logging middleware to an HttpClient carrying secrets in the body (e.g. an OAuth client-credentials form POST), verify its default masking scope explicitly covers body content, not just header names — many masking libraries default to header-only redaction.
+- A migration rollback can only undo migrations whose Down()/reverse code is compiled into the branch you run it from — if a shared environment's migration history shows entries beyond your current branch, locate the branch that actually owns those extra migrations (search all branches) and roll back from there.
 
 Apply this baseline before ordinary .NET DI and codegen habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:dotnet-conventions -->

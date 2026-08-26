@@ -1,7 +1,7 @@
 # .NET Conventions Baseline
 
 Status: active
-Version: 0.3.0
+Version: 0.4.0
 
 Always-on .NET/C# conventions for dependency-injection registration and
 codegen/scaffold output. Distilled from 2026-07 EpinServer work where DI
@@ -118,6 +118,48 @@ scaffolded EF Core migration surfaced changes the agent hadn't caused.
     into "by-design", "correctly exempted", and
     "should-be-exempted-but-isn't" — don't spot-check a handful of call sites
     and assume the rest follow the pattern.
+
+18. When writing/updating a parent and its child in one operation, check the
+    ORM model for an existing navigation property before doing a manual
+    second save.
+    Attach the child to the parent's navigation property before the first
+    save so the change tracker resolves the foreign key in one call.
+
+19. Before adding an operation to a versioned/public SDK/API interface,
+    confirm a real consumer exists.
+    Symmetry or completeness alone is not justification, and new work should
+    extend the live interface, not a deprecated parallel one.
+
+20. Don't serialize a value into a shared/generic field only to immediately
+    deserialize it back within the next step of the same operation.
+    Pass a typed object/property directly; reserve serialization for genuine
+    cross-boundary handoffs (cross-process, cross-time, external API).
+
+21. When adding a field to a widely-implemented shared interface, treat a
+    green build as the minimum bar, not sufficient proof.
+    Separately verify (1) every concrete implementation was actually updated,
+    (2) a reflection-based test-data generator targeting the bare interface
+    won't fail at runtime for unregistered concrete types, and (3) if the new
+    field carries sensitive data, it needs its own masking/redaction tag — it
+    does not inherit protection from wherever it was previously nested.
+
+22. A shared "sync whole object graph" update method must not treat a
+    missing/null collection on the input object as "clear this in the DB"
+    when narrow-purpose callers pass partial objects.
+    Narrow callers should re-fetch the full object and mutate only their own
+    field, not hand a partial object to a full-sync method.
+
+23. Before attaching a shared request/response logging middleware to an
+    HttpClient carrying secrets in the body (e.g. an OAuth client-credentials
+    form POST), verify its default masking scope explicitly covers body
+    content, not just header names.
+    Many masking libraries default to header-only redaction.
+
+24. A migration rollback can only undo migrations whose Down()/reverse code
+    is compiled into the branch you run it from.
+    If a shared environment's migration history shows entries beyond your
+    current branch, locate the branch that actually owns those extra
+    migrations (search all branches) and roll back from there.
 
 ## Priority
 
