@@ -5,6 +5,17 @@ skill collections, articles, essays — anything found via a reel, tweet, or
 link that might be useful later and would otherwise be lost when the source
 expires.
 
+## Why This Exists
+
+- **Unix philosophy**: do one thing well. This folder's one job is capture —
+  it does not evaluate, redact, or promote. That stays `methodology-intake`'s
+  job.
+- **Reuse over rebuild**: if a tested tool or skill already exists, reach for
+  it here before building one from scratch.
+- **Good links die**: reels, tweets, and articles surface something useful
+  once and then vanish. Capturing it here the moment it's seen is cheaper
+  than trying to relocate it later — or losing it for good.
+
 One note per resource in this folder. A bookshelf entry is a raw pointer,
 not an adoption decision — routing a resource into a skill, baseline, or
 spec still goes through `methodology-intake` when the time comes (see
