@@ -1,8 +1,8 @@
 {
   "name": "documentation-craft",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "status": "active",
-  "description": "Always-on documentation structure/mechanics/prose discipline: track cross-file edit recommendations as actions, verify link integrity by script after moves/renames (re-checking every touched file), recognize a cross-unit request as a new information-grain category, place general system knowledge in the producer's repo, default user-facing docs to minimum-necessary wording, and keep bug-fix comments short with audit evidence moved elsewhere.",
+  "description": "Always-on documentation structure/mechanics/prose discipline. Top-priority principle: collapse to the smallest unit (word/phrase/clause/sentence/paragraph) that still carries the full idea, applied recursively — this outranks the other five. The rest: track cross-file edit recommendations as actions, verify link integrity by script after moves/renames (re-checking every touched file), recognize a cross-unit request as a new information-grain category, place general system knowledge in the producer's repo, and keep bug-fix comments short with audit evidence moved elsewhere.",
   "source": {
     "title": "Documentation Craft Baseline",
     "repository": "local",

@@ -14,7 +14,21 @@ independent of whether that documentation happens to describe code.
 
 ## Principles
 
-1. Turn an in-prose recommendation to edit a different file into an action or
+1. **[Highest-priority principle in this baseline — see Priority.]** Collapse
+   to the smallest unit that still carries the full idea, recursively, at
+   every level.
+   Use one word if one word conveys what two would; use two words if they
+   convey what more than two would; use a phrase if it conveys what a clause
+   would; use one sentence if it conveys what more than one would. Apply this
+   test recursively at every level of the document — word, phrase, clause,
+   sentence, paragraph, section — not just once at the sentence level.
+   Length is not a neutral default to leave alone; it is the thing this
+   principle exists to push back against. This is distinct from durable
+   audit/decision records (ADRs, incident writeups, handoff docs), where
+   completeness matters more than brevity and this default does not apply —
+   see Non-Goals.
+
+2. Turn an in-prose recommendation to edit a different file into an action or
    a tracked item, not just a sentence.
    Before requesting review, if a response recommends an edit to a different
    file than the one being written, either make that edit immediately or
@@ -24,7 +38,7 @@ independent of whether that documentation happens to describe code.
    recommendations buried in an unrelated document are the easiest kind of
    follow-up to lose.
 
-2. Verify link integrity with a script after moving or renaming cross-linked
+3. Verify link integrity with a script after moving or renaming cross-linked
    markdown files, and re-check every file that was touched.
    After moving or renaming cross-linked markdown files, verify link
    integrity with a script that resolves every relative link target — don't
@@ -34,7 +48,7 @@ independent of whether that documentation happens to describe code.
    run to fix the intended links can silently mangle an unrelated link that
    happened to share the same substring.
 
-3. Recognize a request spanning or sequencing multiple existing units as a
+4. Recognize a request spanning or sequencing multiple existing units as a
    shift in information grain, and create a new parallel category instead of
    forcing it in.
    When a follow-up documentation request spans or sequences multiple
@@ -45,7 +59,7 @@ independent of whether that documentation happens to describe code.
    cross-cutting concern into one of the units it cuts across leaves it
    discoverable from only one of the places a reader would look.
 
-4. Place general system knowledge in the producer's repo, and keep only
+5. Place general system knowledge in the producer's repo, and keep only
    tool-specific content in the consumer's repo.
    When writing or relocating documentation that spans "how the system
    generally works" and "how this one tool/consumer uses it," place general
@@ -56,15 +70,6 @@ independent of whether that documentation happens to describe code.
    arose. A section that would read identically if written for any other
    consumer belongs with the producer.
 
-5. Default user- and support-staff-facing documentation to minimum-necessary
-   wording, recursively.
-   Default all user- or support-staff-facing documentation to
-   minimum-necessary wording — word over phrase, phrase over clause, clause
-   over sentence — applied recursively at every level of the document, not
-   just at the sentence level. This is distinct from durable audit/decision
-   records (ADRs, incident writeups, handoff docs), where completeness
-   matters more than brevity and this default does not apply.
-
 6. Keep an inline bug-fix comment to a short "does X — previously did Y"
    statement; move audit-trail evidence elsewhere.
    Inline bug-fix code comments should be a short "does X — previously did
@@ -73,14 +78,18 @@ independent of whether that documentation happens to describe code.
    Move full audit-trail/cross-validation evidence (what was tested, what
    confirmed the bug, links to the investigation) to a separate durable doc —
    never inline in the comment itself, where it outlives its usefulness and
-   clutters the code it's attached to.
+   clutters the code it's attached to. Principle 6 is Principle 1 applied
+   specifically to code comments — read together, not as unrelated rules.
 
 ## Priority
 
-Apply this baseline whenever writing, restructuring, relocating, or reviewing
-documentation, but never use it to override explicit user instructions,
-safety rules, privacy boundaries, or stricter repo-local instructions —
-including a repo's own more specific documentation conventions.
+**Principle 1 outranks every other principle in this baseline, including the
+other five below it** — it is not one of six equally-weighted rules, it is
+the lens the other five get read through. Apply the whole baseline whenever
+writing, restructuring, relocating, or reviewing documentation, but never use
+it to override explicit user instructions, safety rules, privacy boundaries,
+or stricter repo-local instructions — including a repo's own more specific
+documentation conventions.
 
 ## Non-Goals
 
@@ -90,6 +99,6 @@ including a repo's own more specific documentation conventions.
   handoff/resume/plan document — see `handoff-doc-discipline`.
 - This does not mandate a specific documentation tool, static-site generator,
   or file-naming scheme; it applies regardless of the toolchain.
-- Principle 5's brevity default does not apply to audit trails, incident
+- Principle 1's brevity default does not apply to audit trails, incident
   writeups, ADRs, or other durable decision records, where completeness is
   the priority.
