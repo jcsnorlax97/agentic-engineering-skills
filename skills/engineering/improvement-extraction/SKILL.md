@@ -1,6 +1,6 @@
 ---
 name: improvement-extraction
-description: Scan the current session for candidate CLAUDE.md/AGENTS.md baselines or candidate Claude Code skills, and write them as structured notes to a configurable output folder for later manual review. Use when the user asks to extract improvement ideas, capture process improvements, or save candidate baselines/skills surfaced during this session — phrases like "extract improvements", "capture what we'd add to CLAUDE.md", or "save this as a candidate skill idea".
+description: Scan the current session for candidate CLAUDE.md/AGENTS.md baselines, candidate Claude Code skills, or improvements to an existing baseline/skill/template, and write them as structured notes to a configurable output folder for later manual review. Use when the user asks to extract improvement ideas, capture process improvements, or save candidate baselines/skills surfaced during this session — phrases like "extract improvements", "capture what we'd add to CLAUDE.md", or "save this as a candidate skill idea".
 status: trial
 problem: Candidate process improvements (baseline rules, skill ideas) surfaced during a session were only captured by manually asking, in full sentences, for the session to be scanned and written up — a repeated, mechanizable step done by hand every time.
 when-not-to-use: Do not use for capturing a full session log (that belongs to a work-log capture skill such as capture-assistant-session), for cross-company-portable personal lessons (that belongs to a personal-vault lesson-extraction skill), or for ideas too narrow to generalize past the current task.
@@ -21,10 +21,11 @@ Scan the current session for candidate CLAUDE.md/AGENTS.md baselines or candidat
 
 ## Step 2 — What counts as a candidate
 
-Only two categories qualify:
+Three categories qualify:
 
 1. **Candidate portable baseline** — a rule that, had it existed in CLAUDE.md/AGENTS.md at the start of the session, would have prevented a mistake, correction, or ambiguity that actually came up. General enough to survive a future session or a different repo.
 2. **Candidate skill** — a repeatable, at least partly mechanizable procedure that came up this session and would be cheaper to run as a scripted/semi-scripted skill next time than to redo by hand.
+3. **Candidate improvement to an existing skill/baseline/template** — a friction point hit while actually *using* one this session: a verbose template, an ambiguous step, two sections that always say the same thing, a rule that no longer fits how it gets applied. Don't limit the scan to brand-new ideas; using an existing tool is itself a chance to spot what it should stop doing.
 
 Exclude: routine bug fixes, one-off decisions, anything already covered by an existing baseline or skill, and anything too narrow to generalize past this one task.
 
@@ -34,30 +35,27 @@ List the files already in `IMPROVEMENTS_ROOT` and skim their titles and first pa
 
 ## Step 4 — Write one file per genuinely new idea
 
-Filename: `kebab-case-topic.md`. Use this structure:
+Filename: `kebab-case-topic.md`. Use this structure — every field earns its words; skip a section if the one above it already covers it:
 
 ```markdown
-# <one-line statement of the proposed rule/skill>
+# <the rule/skill, one line>
 
-**Status:** improvement note / candidate baseline (or candidate skill) — not yet formalized
-**Captured:** <date>
-**Context:** <ticket/PR/repo this came from, one line>
+**Captured:** <date> — <repo/PR, one line>
 
-## The observation
-<what happened that surfaced this>
+## Trigger
+<the incident that surfaced this — self-contained, no restating in a second section>
 
-## The rule (proposed)
-<the specific, actionable rule or skill description>
+## Rule
+<the actionable rule or skill, stated directly>
 
-## Nuance (so we don't over-apply it)
-<where this should NOT apply>
+## Boundary
+<where this should NOT apply — omit if there's no real risk of over-applying it>
 
-## What triggered this
-<the concrete incident(s), with enough detail to be self-explanatory later>
-
-## Future work
-<what it would take to actually formalize this as a baseline or a skill>
+## Next step
+<what it'd take to formalize this — omit if "review and adopt" is all there is to say>
 ```
+
+Write tight: one word beats two if it carries the same meaning, two words beat a clause, a clause beats a sentence. Don't restate the same fact in two sections (the old "observation" vs. "what triggered this" split routinely did — that's why they're merged into one `Trigger` section now).
 
 No confirmation gate before writing — `IMPROVEMENTS_ROOT` is a working/scratch folder for candidate ideas, not curated long-term memory or this repo's governed skill/baseline inventory.
 
