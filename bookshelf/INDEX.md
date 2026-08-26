@@ -15,3 +15,8 @@ here, newest first.
 
 | Date | Kind | Title | Why |
 | --- | --- | --- | --- |
+| 2026-08-26 | skill-repo | [claude-video](claude-video.md) | Lets Claude watch/transcribe/analyze any video via `/watch`. |
+| 2026-08-26 | tool | [notebooklm-py](notebooklm-py.md) | Unofficial Python API/CLI/MCP server for programmatic NotebookLM access. |
+| 2026-08-26 | skill-repo | [graphify](graphify.md) | Turns a codebase/docs/PDFs into a queryable knowledge graph via `/graphify`. |
+| 2026-08-26 | skill-repo | [impeccable](impeccable.md) | Design-quality skill: 23 subcommands, live browser iteration, anti-pattern detectors. |
+| 2026-08-26 | skill-repo | [ponytail](ponytail.md) | Anti-over-engineering ruleset for AI coding agents; overlaps our own karpathy-principles baseline. |
