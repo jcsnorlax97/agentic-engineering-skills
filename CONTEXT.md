@@ -43,6 +43,10 @@ Stable repo link: The machine-local symlink `~/.local/share/ai-toolkit/current` 
 
 Source registry: A repository document that records each external skill source, imported paths, license, copyright notice, verification date, and obligations. In this repo, the source registry is `docs/upstream-sources.md`. Avoid: informal attribution
 
+Bookshelf: A raw capture surface for unprocessed external resources (skill repos, tools, skill collections, articles, essays) worth remembering before the source expires. Lives at `bookshelf/`, indexed by `bookshelf/INDEX.md`. Distinct from the intake ledger (`docs/intake.md`), which tracks methodology-intake verdicts, and from the source registry (`docs/upstream-sources.md`), which tracks actually-imported material. Avoid: bookmarks, reading list
+
+Bookshelf note: One markdown file per bookshelf resource, following the shape in `bookshelf/_template.md` (title, url, kind, captured date, status, and a short why-it-matters note). Avoid: intake item, capture
+
 Agent team workflow: A repeatable workflow for decomposing a larger goal into bounded agent roles, context packets, handoffs, and acceptance checks. Avoid: agent swarm, autonomous team
 
 Agent workflow pack: A future tool-neutral source tree under `workflows/<workflow-name>/` that owns reusable agent workflow specs, role catalogs, team profiles, execution-packet templates, and handoff contracts. Avoid: hidden skill body, runtime-specific subagent config

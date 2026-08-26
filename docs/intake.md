@@ -11,6 +11,11 @@ Classification of external methodology sources is owned by the
 `methodology-intake` skill; this file is its ledger for `parked` and
 `revisit-on-trigger` verdicts.
 
+For raw, not-yet-evaluated external resources (skill repos, tools, articles)
+worth remembering before they expire, see [`bookshelf/INDEX.md`](../bookshelf/INDEX.md).
+A bookshelf entry becomes an intake verdict only once it goes through
+`methodology-intake`.
+
 ## Intake Verdicts
 
 - 2026-07-05 — X post @mylifcc (Fable5 workflow) + `majiayu000/spellbook`:

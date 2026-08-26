@@ -17,6 +17,7 @@ scripts.
 ├── .claude/
 │   └── skills/
 ├── baselines/
+├── bookshelf/
 ├── docs/
 │   ├── adr/
 │   ├── agents/
@@ -45,6 +46,8 @@ templates/
 
 - `skills/` owns invoked workflow skills.
 - `baselines/` owns always-on managed instruction packs.
+- `bookshelf/` owns unprocessed external resource pointers (skill repos,
+  tools, articles) — one note per resource, indexed in `bookshelf/INDEX.md`.
 - `workflows/` will own reusable tool-neutral workflow definitions when they
   graduate out of specs.
 - `agents/` will own reusable role or agent profiles when the contract is
@@ -150,6 +153,8 @@ Install optional command shims:
   baseline, skills, and hooks CLIs.
 - [Upstream Sources](docs/upstream-sources.md): source and license records for
   imported material.
+- [Bookshelf](bookshelf/INDEX.md): unprocessed external resources (skill
+  repos, tools, articles) worth remembering, one note per resource.
 - [Specs](docs/specs/): accepted and draft workflow/design specs.
 - [Context](CONTEXT.md): glossary and stable domain language.
 

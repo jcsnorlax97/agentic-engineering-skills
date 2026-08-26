@@ -8,6 +8,7 @@ assistant runtime.
 ```text
 skills/
 baselines/
+bookshelf/
 workflows/   # planned
 agents/      # planned
 templates/   # planned
@@ -21,6 +22,12 @@ skills merely to express maturity or status.
 `baselines/` owns always-on instruction packs. Baselines are applied to
 downstream repo instruction files through managed blocks; they are not runtime
 skills.
+
+`bookshelf/` owns unprocessed external resource pointers: skill repos, tools,
+skill collections, articles, or essays worth remembering before they expire.
+One note per resource, indexed in `bookshelf/INDEX.md`. It is a raw capture
+surface, not an adoption decision — promoting a bookshelf entry into a skill,
+baseline, or spec still goes through `methodology-intake`.
 
 `workflows/` should own reusable tool-neutral workflow specs, role catalogs,
 team profiles, execution-packet templates, and handoff contracts once those
