@@ -26,6 +26,7 @@ here, newest first.
 
 | Date | Kind | Title | Why |
 | --- | --- | --- | --- |
+| 2026-08-26 | skill-repo | [eli5](eli5.md) | `/eli5 <topic>` → HTML artifact explainer; installed to `~/.claude/skills/` to try. |
 | 2026-08-26 | skill-repo | [claude-video](claude-video.md) | Lets Claude watch/transcribe/analyze any video via `/watch`. |
 | 2026-08-26 | tool | [notebooklm-py](notebooklm-py.md) | Unofficial Python API/CLI/MCP server for programmatic NotebookLM access. |
 | 2026-08-26 | skill-repo | [graphify](graphify.md) | Turns a codebase/docs/PDFs into a queryable knowledge graph via `/graphify`. |
