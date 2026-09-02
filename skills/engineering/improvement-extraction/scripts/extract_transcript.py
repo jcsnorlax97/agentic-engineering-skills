@@ -42,30 +42,64 @@ def encode_cwd_for_project_dir(cwd: str) -> str:
     return encoded
 
 
+def _first_session_id(jsonl_path: str) -> str:
+    """Best-effort peek at the first line's sessionId, for a cross-check.
+    Returns '' if unavailable rather than raising — this is a diagnostic
+    aid, not something that should block extraction on its own."""
+    try:
+        with open(jsonl_path, encoding="utf-8", errors="replace") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                obj = json.loads(line)
+                return obj.get("sessionId", "")
+    except Exception:
+        pass
+    return ""
+
+
 def find_latest_session_jsonl() -> str:
     home = os.path.expanduser("~")
     projects_root = os.path.join(home, ".claude", "projects")
     cwd = os.getcwd()
     encoded = encode_cwd_for_project_dir(cwd)
     candidate_dir = os.path.join(projects_root, encoded)
-    search_dirs = [candidate_dir] if os.path.isdir(candidate_dir) else []
-    if not search_dirs:
-        # Fall back to scanning all project dirs for the most recently
-        # modified .jsonl anywhere — slower but works if the encoding
-        # guess above is wrong.
-        search_dirs = [d for d in glob.glob(os.path.join(projects_root, "*")) if os.path.isdir(d)]
 
-    all_jsonl = []
-    for d in search_dirs:
-        all_jsonl.extend(glob.glob(os.path.join(d, "*.jsonl")))
+    if not os.path.isdir(candidate_dir):
+        # Multiple encoded-cwd variants (differing only by a trailing segment
+        # like "-src") can each hold a real transcript. Scanning every
+        # project dir for "most recently modified anywhere" — the old
+        # behavior — can silently pick a stale variant instead of the real
+        # current session. Require an exact match; let the caller pass
+        # --session explicitly rather than guess broadly.
+        raise FileNotFoundError(
+            f"No exact project dir for this cwd's encoding ({encoded!r}) under "
+            f"{projects_root}. Pass --session explicitly rather than relying on "
+            f"auto-detect here — a broader scan risks picking a different "
+            f"encoded-cwd variant's transcript instead of the real current session."
+        )
 
+    all_jsonl = glob.glob(os.path.join(candidate_dir, "*.jsonl"))
     if not all_jsonl:
         raise FileNotFoundError(
-            f"No session .jsonl found under {projects_root}. Pass --session explicitly."
+            f"No session .jsonl found under {candidate_dir}. Pass --session explicitly."
         )
 
     all_jsonl.sort(key=os.path.getmtime, reverse=True)
-    return all_jsonl[0]
+    picked = all_jsonl[0]
+
+    expected_session_id = os.environ.get("CLAUDE_CODE_SESSION_ID", "")
+    if expected_session_id:
+        actual_session_id = _first_session_id(picked)
+        if actual_session_id and actual_session_id != expected_session_id:
+            print(
+                f"WARNING: picked transcript's sessionId ({actual_session_id}) does not "
+                f"match $CLAUDE_CODE_SESSION_ID ({expected_session_id}) — this directory "
+                f"has more than one session; pass --session explicitly to be sure.",
+                file=sys.stderr,
+            )
+    return picked
 
 
 def extract_text(content):
