@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:commit-conventions v0.1.0 -->
+<!-- BEGIN baseline:commit-conventions v0.1.1 -->
 ## Portable Agent Baseline: Commit Conventions
 
 - Write every commit message in the [Conventional Commits](https://www.conventionalcommits.org/) format: `<type>(<optional scope>): <description>`, optionally followed by a blank line, a body, and footer(s).
@@ -6,7 +6,7 @@
 - Keep the subject in present-tense imperative mood and 72 characters or fewer ("add logging", not "added logging"), with no trailing period. Scope is optional but encouraged in larger codebases.
 - Put the "why" in the body when the change is not self-evident, wrapping prose at roughly 72 columns. Reference tracking items in the footer: `Closes #123` (GitHub) or `AB#12345` (Azure DevOps work item).
 - Flag breaking changes with `!` after the type/scope (`feat(api)!: ...`) or a `BREAKING CHANGE:` footer.
-- This governs message format only. It composes with `git-collaboration-hygiene` (stage explicit paths, review the staged diff before committing).
+- This governs message format only. It composes with `git-collaboration-hygiene` (stage explicit paths, review the staged diff before committing) and `commit-attribution` (no AI co-author trailers or "generated with" footers).
 
 This baseline takes precedence over ordinary commit habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions (including a repository's own established commit convention).
 <!-- END baseline:commit-conventions -->

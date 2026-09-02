@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:documentation-craft v0.3.0 -->
+<!-- BEGIN baseline:documentation-craft v0.4.0 -->
 ## Portable Agent Baseline: Documentation Craft
 
 - **[Top-priority principle — outranks the rest below.]** Use one word if it conveys what two would; two words if they convey what more than two would; one sentence if it conveys what more than one would — apply this recursively at every level (word, phrase, clause, sentence, paragraph, section), not just once. Length is not neutral; it's the default this principle pushes back against. Does not apply to durable audit/decision records (ADRs, incident writeups, handoff docs) where completeness outweighs brevity.
@@ -16,6 +16,14 @@
 - After several rounds of incremental, localized edits to the same document, do one full linear read-through before finishing — per-edit review only catches whether each addition is correct in isolation, not whether the document's ordering and cross-references still hold (e.g. a conclusion that cites content added after it).
 - When a resolved decision record is superseded, append a dated "superseded" block in place, preserving the original reasoning, rather than rewriting the file or forking to a new one.
 - Before correcting an outdated document, classify it first: a point-in-time snapshot (annotate/point to the current source, leave the body's original reasoning unchanged) or a continuously-maintained reference (correct in place, dated) — the two natures require opposite correction strategies, and using the wrong one for either causes real problems.
+- Run a comment-tightening pass as diff+grep+rebuild (extract added comment lines from the diff, group into blocks, edit, re-scan, gate on a full rebuild+tests), and never invent a shortened/paraphrased form of a referenced code identifier while tightening a comment — keep it byte-for-byte or re-verify against the declaration.
+- When synthesizing a messy human source (meeting notes, a transcript) into a clean doc, flag internal contradictions found in it explicitly rather than silently picking the reading that seems more plausible — only the original author can adjudicate what they meant.
+- Update a project's own knowledge folders (glossary, decision log, open-questions) when a durable fact is learned in conversation, not just when code changes — don't wait to be asked, and don't rely on a code-change-triggered doc-sync rule to cover it.
+- Before publishing a Mermaid-in-HTML diagram, never rely on `<br/>` inside a `Note over` statement for a line break (use stacked `Note over` lines instead) and grep for any bare `&` not already a valid entity before every publish.
+- Tag each listed mitigation as closes-at-root, reduces-odds, or detection-only — never a bare "addressed by"/"closes"/"fixes" — and re-check the rest of the document for the same overstatement once one instance is found.
+- Given a false claim already found once, grep the literal text across every touched directory, classify each hit as live vs. deliberately-historical and apply the matching fix, then re-scan every document of the same genre for the same class of issue, not just the one hit.
+- When trimming drafted content to a known hard platform character limit, compute the exact excess up front and make one deliberate cut sized to it, rather than iterating blind small edits with a recount after each one.
+- Match the codebase's existing selective doc-comment convention (structured comments on some public members, plain comments on implementation detail) rather than defaulting to documenting everything or nothing in a pass.
 
 Apply this baseline whenever writing, restructuring, relocating, or reviewing documentation, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions. This does not cover code/doc sync (see `code-doc-sync`) or living-handoff-document lifecycle (see `handoff-doc-discipline`).
 <!-- END baseline:documentation-craft -->

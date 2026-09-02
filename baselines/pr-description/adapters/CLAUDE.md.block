@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:pr-description v0.3.0 -->
+<!-- BEGIN baseline:pr-description v0.3.1 -->
 ## Portable Agent Baseline: PR Description
 
 - If the repository provides a PR template (`.github/PULL_REQUEST_TEMPLATE.md`, a file under `.github/PULL_REQUEST_TEMPLATE/`, or the Azure DevOps equivalent), fill it out rather than replacing it. The template wins; use the structure below only when none exists.
@@ -6,7 +6,7 @@
 - With no template, cover in order: **Summary** (what changed, 1-3 sentences), **Why** (motivation and context), **Testing** (how it was verified; say so if it was not), and **Risk / rollback** (blast radius, migrations, flags, how to revert).
 - Reference tracking items and related PRs with the platform's own syntax. Work item / issue: `Closes #123` (GitHub) or `AB#12345` (Azure DevOps). Another PR: `#123` on GitHub, but `!123` on Azure DevOps — in DevOps `#123` links a *work item*, not a PR, so use `!` to link a DevOps PR.
 - Be honest about verification and gaps — report failing tests and skipped steps; never describe unverified work as verified.
-- Do not add AI attribution, "generated with" footers, or co-author trailers to the title or body. This composes with `commit-conventions` (the commit subject/body) and `git-collaboration-hygiene` (open and push PRs only with consent).
+- Do not add AI attribution, "generated with" footers, or co-author trailers to the title or body (see `commit-attribution`). This composes with `commit-conventions` (the commit subject/body) and `git-collaboration-hygiene` (open and push PRs only with consent).
 - Keep it proportional: a one-line typo fix needs a sentence, not four headed sections — scale the body to the size and risk of the change.
 - If the target platform is Azure DevOps, its PR `description` field has a hard 4000-character API limit (comments don't share it) — for a body that risks running long, plan up front what belongs in the description versus a follow-up comment.
 - When the repo provides a PR template, diff your actual body against the template file itself section-by-section before submitting, rather than checking from memory — some templates gate CI on an exact match.

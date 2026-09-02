@@ -110,6 +110,7 @@ def main():
     session_path = args.session or find_latest_session_jsonl()
     print(f"Reading session: {session_path}", file=sys.stderr)
 
+    os.makedirs(args.out, exist_ok=True)
     out_path = os.path.join(args.out, "session_text.txt")
     count = 0
     with open(session_path, encoding="utf-8", errors="replace") as f, \
@@ -140,12 +141,16 @@ def main():
         with open(out_path, encoding="utf-8") as f:
             lines = f.readlines()
         n_chunks = max(1, (len(lines) + args.chunk_lines - 1) // args.chunk_lines)
+        chunk_paths = []
         for i in range(n_chunks):
             chunk_lines = lines[i * args.chunk_lines: (i + 1) * args.chunk_lines]
             chunk_path = os.path.join(args.out, f"chunk_{i:02d}.txt")
             with open(chunk_path, "w", encoding="utf-8") as cf:
                 cf.writelines(chunk_lines)
-        print(f"Split into {n_chunks} chunk files ({args.chunk_lines} lines each) in {args.out}", file=sys.stderr)
+            chunk_paths.append(chunk_path)
+        print(f"Split into {n_chunks} chunk files ({args.chunk_lines} lines each) in {args.out}:", file=sys.stderr)
+        for p in chunk_paths:
+            print(f"  {p}", file=sys.stderr)
 
 
 if __name__ == "__main__":

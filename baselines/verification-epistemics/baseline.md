@@ -1,7 +1,7 @@
 # Verification Epistemics Baseline
 
 Status: active
-Version: 0.4.0
+Version: 0.5.0
 
 Always-on discipline for a recurring failure mode: treating an inherited,
 paraphrased, or confidently-stated claim as verified fact without checking it
@@ -479,6 +479,124 @@ producing a wrong conclusion that direct verification would have caught.
     — a plausible proxy check on an adjacent code path is not a
     substitute for re-triggering the original symptom.
 
+58. Mark illustrative numbers and team-made decisions distinctly from
+    stakeholder-confirmed facts in a decision document.
+    In any decision/design document meant to be read as authoritative (ADR,
+    plan, ticket comment), every quantitative figure or stakeholder-attributed
+    claim must be traceable to an actual source (a quote, a message link, a
+    ticket field) or explicitly marked as an internal estimate/example. Never
+    let a number used illustratively in conversation, or a conclusion the
+    team reached on its own, drift into being stated as if a stakeholder
+    confirmed or approved it.
+
+59. When multiple verification gaps exist, name which one breaks correctness
+    silently vs. which is just slow or loud.
+    When more than one verification gap exists on the same piece of work,
+    don't just list them flat — rank them by failure visibility: a gap that
+    could break correctness *silently* (wrong data, no error, surfaces later
+    as a confusing unrelated symptom) outranks one that's merely unverified
+    but would fail loudly and obviously if wrong (slow, crashes, a visible
+    error). Say which is which when reporting status, and close the
+    silent-failure risk first if only one can be checked before shipping.
+    Distinct from principle 60's reproduction discipline — this is triage
+    once multiple gaps are already known, not how to close any individual
+    one.
+
+60. Re-verify a vendor/protocol behavior claim against the primary spec, not
+    a local summary — and extend "primary source" to a sibling service's own
+    code when the claim is about in-house behavior.
+    When a decision hinges on an exact vendor/protocol behavior claim,
+    re-verify against the primary source document (extract full text, search
+    it directly) before writing it into an ADR or shipping code that depends
+    on it — even a locally-maintained glossary written for this same project
+    can be stale or paraphrased wrong. The same principle generalizes beyond
+    vendor spec *documents*: when a fix depends on another in-house service's
+    behavior and that service's source is available locally, read its actual
+    endpoint/handler code rather than trusting a ticket description, a
+    summary doc, or a plausible inference from a similar existing pattern.
+    Only worth the extra step when the claim is genuinely load-bearing for a
+    design/fix decision.
+
+61. Before trusting a harness's negative result, check it exercises the real
+    path, real data, and real object identity.
+    Before trusting a harness's "still slow"/negative result as disproof of
+    a hypothesis, explicitly check three fidelity gaps: (a) does the
+    warm-up/test call route through the *same* method/layer the real code
+    path consults, not a lower-level proxy that merely looks similar; (b)
+    does the test use domain data (IDs, keys) that actually exists/resolves
+    in the target system, not an arbitrary placeholder guaranteeing a
+    permanent miss; (c) for any mock of a method whose real implementation
+    returns a different object than it received (insert/update-then-refetch
+    patterns), does the mock return a genuine copy, not the same reference —
+    a mock that aliases the input can mask both the original bug and the
+    regression test written to catch it, passing even without the fix. A
+    negative result that fails any of these checks is inconclusive, not a
+    rebuttal. Refines principle 4's general "pair a no-mechanism trace with
+    an empirical check" with the specific fidelity checks that principle
+    doesn't spell out.
+
+62. When a planned test turns out infeasible, record the resulting coverage
+    gap explicitly — don't just revert silently.
+    When a planned verification/test turns out infeasible due to environment
+    or shared-infra limitations, don't just revert and move on — record the
+    resulting coverage gap explicitly in the design doc/ADR, along with what
+    alternative evidence stands in for it. Worth doing for meaningfully-scoped
+    gaps a reviewer would want visibility into; not every trivial abandoned
+    experiment needs a permanent paper trail. Distinct from principle 59
+    (ranking multiple already-known gaps) — this is the separate step of
+    disclosing a gap at all once an attempt to close it fails.
+
+63. Confirm a deploy actually picked up a merge with a differential endpoint
+    probe, not just "merged."
+    Before relying on a shared/deployed environment to validate a
+    just-merged change, don't infer "deployed" from "merged." Confirm with a
+    cheap differential probe — hit a route/behavior that only exists after
+    the change (expect success) and one that should no longer behave the old
+    way (expect failure) — especially on a shared environment other people
+    also use.
+
+64. Copy a path from the last successful listing verbatim — don't
+    reconstruct it from memory for the next call.
+    When constructing a file path for a follow-up operation, copy the exact
+    path string from the most recent successful listing/tool result rather
+    than reconstructing it from memory — a single misremembered path segment
+    causes several wasted lookup attempts before the mistake surfaces. Only
+    applies when a prior tool call in the same turn/session already produced
+    the authoritative path.
+
+65. Never pass `--no-build` (or any stale-output shortcut) when verifying the
+    effect of a just-made source edit.
+    When running a test/verification command specifically to confirm the
+    effect of a just-made source edit, never pass `--no-build` or any
+    flag/cache that could reuse stale output — always force a fresh build
+    first, or explicitly confirm the binary's timestamp postdates the edit.
+    A "passing" result from stale binaries is worse than no result, because
+    it's silently wrong.
+
+66. To justify or challenge an existing design decision, trace the specific
+    call site through git → PR → ticket → team chat, not just the file's
+    history.
+    When asked to justify or challenge an existing design decision, trace
+    the *specific call site* (via `git log -S <symbol>` to find its
+    introducing commit, not just the file's history), pull that commit's PR
+    description, pull the PR's linked work item for stated original intent,
+    and cross-check team chat for related incident/reliability history.
+    Report the original constraint and whether it still holds for the
+    current use separately — a call site's own origin can be unrelated to
+    why the pattern it uses exists in general. Only worth the full chain when
+    historical justification is explicitly wanted (e.g. before proposing a
+    redesign); skip it for routine bug fixes.
+
+67. State a verification boundary unprompted, in the same message that
+    reports success — don't wait to be asked a pointed question.
+    When reporting a fix as done, explicitly state what was and wasn't
+    verified in the same message, even when not asked: "confirmed X via
+    tests; not confirmed: real-world Y, because Z; here's exactly what would
+    confirm it." Reporting a test-pass count ("16/16 passed") is true but can
+    read as full verification when it only verified a mocked or partial
+    contract — surface the gap in the success message itself, not only when
+    directly asked "have you confirmed this resolves the issue?"
+
 ## Priority
 
 Apply this baseline before presenting a conclusion, a fix, or a summary of
@@ -495,8 +613,8 @@ safety rules, privacy boundaries, or stricter repo-local instructions.
 
 ## Editorial note
 
-This baseline has grown very large (57 principles) across two consolidation
-passes in one day. It likely needs a structural/consolidation pass —
-grouping principles into sub-categories and merging near-duplicates —
-before further additions. Flagging this for a future maintainer; not
-acted on here.
+This baseline has grown very large (67 principles as of 2026-09-01, up from
+57) across three consolidation passes. It likely needs a structural/
+consolidation pass — grouping principles into sub-categories and merging
+near-duplicates — before further additions. Flagging this for a future
+maintainer; not acted on here.

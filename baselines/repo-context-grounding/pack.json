@@ -1,13 +1,13 @@
 {
   "name": "repo-context-grounding",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "status": "active",
-  "description": "Always-on startup posture for AI coding agents entering an existing repository: read local instructions, inspect context, discover workflows, respect boundaries, and verify with repo-native checks.",
+  "description": "Always-on startup posture for AI coding agents entering an existing repository: read local instructions, inspect context, discover workflows, respect boundaries, verify with repo-native checks, and five added Windows/tooling-discovery bullets (ask before a broad filesystem search, check for an existing runbook, PowerShell-vs-git-bash shim discovery, /tmp on Windows, gh api over WebFetch).",
   "source": {
     "title": "AI OS Repo Context Grounding",
     "repository": "local",
     "license": "repo-local",
-    "relationship": "Authored as a portable baseline pack from repeated AI OS startup, repo-orientation, and context-reconstruction friction."
+    "relationship": "Authored as a portable baseline pack from repeated AI OS startup, repo-orientation, and context-reconstruction friction. Five bullets added 2026-09-01 via the baseline-gap-review skill's occurrence #2 pass over _Improvements."
   },
   "adapters": {
     "codex": "adapters/AGENTS.md.block",

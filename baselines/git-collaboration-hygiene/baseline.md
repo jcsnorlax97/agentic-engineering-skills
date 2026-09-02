@@ -1,7 +1,7 @@
 # Git Collaboration Hygiene Baseline
 
 Status: active
-Version: 0.9.0
+Version: 0.10.0
 
 This is a tool-neutral always-on baseline for AI coding agents working in Git
 repositories. It captures collaboration safety that should apply before
@@ -240,7 +240,13 @@ workflow-specific PR, release, deploy, or multi-agent procedures.
 35. Once a PR has a reviewer attached, treat push as a costly notification-
     triggering action.
     Batch related changes, run full local verification, then push once,
-    rather than pushing on every micro-edit.
+    rather than pushing on every micro-edit. On a PR already under active
+    review (reviewers assigned, comments in progress, or the user has
+    mentioned reviewer involvement), don't just batch silently — ask
+    whether it's OK to push now or whether to keep batching further changes.
+    A new push can force the author to re-request approval from a teammate,
+    a real workflow cost beyond "is this change correct" that's invisible
+    without being told.
 
 36. When a reviewer's requested change conflicts with a decision the task
     owner already explicitly approved, don't resolve it unilaterally.
@@ -263,6 +269,65 @@ workflow-specific PR, release, deploy, or multi-agent procedures.
     confirm whether the push resets approval.
     Most tools do. Check with the decision-maker first rather than assuming
     approval carries forward.
+
+40. Don't promise a commit split until concerns are separable at the
+    file/hunk level, not just conceptually.
+    Before committing to a multi-commit split (whether proposed by the user
+    or by the assistant), check whether the concerns are actually separable
+    at the file level — not just conceptually distinct. If they're woven
+    through the same file's hunks and the environment has no `git add
+    -p`/`-i`, don't attempt a manual patch-level split unless each resulting
+    commit can be verified to independently build and pass tests. Default to
+    one commit with a message that clearly labels each decision in the
+    body, and state the reason for not splitting rather than silently
+    abandoning the plan or silently forcing a risky split anyway. Doesn't
+    apply when the concerns land in genuinely separate files or
+    non-overlapping regions of the same file — staging still gives a clean
+    split there.
+
+41. Write a multi-line commit message with an apostrophe or contraction to a
+    file, not an inline `-m`.
+    For multi-line commit messages likely to contain an apostrophe or
+    contraction (very common in prose explaining a "why"), don't build the
+    message as an inline `-m "..."` shell string — write it to a file via a
+    single-quoted heredoc first and commit with `git commit -F <file>`,
+    avoiding a quoting break mid-commit that produces confusing pathspec
+    errors.
+
+42. Default to a git worktree when starting new, unrelated work and the
+    current branch is dirty.
+    When asked to start new work from a base branch (e.g. `origin/main`) and
+    the current working tree has uncommitted changes unrelated to that work,
+    default to `git worktree add -b <branch> ../<repo>-wt-<slug> <base>`
+    instead of stashing in place or switching branches — it fully isolates
+    the new work's rebases/force-pushes/stashes from the other branch's live
+    state, with no risk of touching what's already there. Name the worktree
+    directory `<repo>-wt-<short-slug>` so it's recognizable as a sibling,
+    disposable checkout. Not needed when the current branch's uncommitted
+    changes are actually part of the requested task, when the user
+    explicitly says to switch/stash, or for trivial single-file edits with
+    no branching/rebasing involved.
+
+43. Search git history for prior real-world precedent before scoping a
+    change to a shared/multi-referenced structure.
+    When scoping a change that resembles "modify an existing shared/
+    multi-referenced structure" (add an item to an in-use fallback list, a
+    priority sequence, or similar mapping), search git log/history for
+    whether this exact class of change was done before anywhere in the
+    codebase — even a one-off throwaway migration — before re-deriving
+    constraints from current-state code alone. A concrete historical
+    precedent grounds a scoping discussion in real constraints faster than
+    continued speculation.
+
+44. When a file referenced by a ticket/doc can't be found via normal search,
+    check all git history, including unmerged branches, before concluding
+    it doesn't exist.
+    Search all git history for the path with `git log --all --oneline --
+    <path>` before concluding a referenced file doesn't exist. If it's found
+    on a commit that isn't an ancestor of HEAD, read its content directly
+    with `git show <remote-branch-or-sha>:<path>` rather than checking out
+    that branch — this recovers content on unmerged or abandoned branches
+    without disturbing the current working tree.
 
 ## Priority
 

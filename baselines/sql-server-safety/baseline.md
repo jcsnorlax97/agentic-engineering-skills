@@ -1,7 +1,7 @@
 # SQL Server Safety Baseline
 
 Status: active
-Version: 0.3.0
+Version: 0.4.0
 
 Always-on correctness rules for T-SQL an agent writes or hands off — diagnostic
 queries, verification queries, and data-fix/backfill scripts against SQL
@@ -113,7 +113,33 @@ predicate, unbounded scan).
     extra nested path segments. Re-verify from a short-path clone before
     treating the failure as a real regression.
 
-13. Local temp tables (`#temp`) are session-scoped.
+13. Cast to `nvarchar(max)` before `REPLICATE()` when generating long T-SQL
+    test strings.
+    `REPLICATE()` on a plain `nvarchar` literal returns `nvarchar(4000)` by
+    default and silently truncates its result to 4000 chars — when probing a
+    length boundary (a CHECK constraint, an `nvarchar(max)` limit), this can
+    make a correctly-working constraint look broken (a "200001-char" seed
+    that's actually only 4000 chars passing where it should fail). Always
+    `CAST` the seed literal to `nvarchar(max)` first.
+
+14. Use a fixed decision table for local SQL Server fault injection when
+    testing retry logic, not ad hoc trial and error.
+    Given a target behavior to test, use: wrong DB name → error 4060,
+    transient, connection-wide · unreachable IP/blocked port → error 10060,
+    transient, connection-wide, recoverable mid-test by removing the block ·
+    renamed table via `sp_rename` → error 208, permanent, isolated to one
+    table · row lock + timeout → error -2, **not** transient by EF Core's own
+    design · bad password → error 18456, permanent. When the chosen technique
+    is a firewall block on loopback (app and SQL Server on the same machine),
+    verify it actually took with `Test-NetConnection` first — Windows
+    Firewall enforcement on loopback traffic is inconsistent enough that a
+    block rule sometimes silently doesn't apply — or default to pointing the
+    connection string at an unreachable IP instead, which avoids loopback
+    ambiguity entirely. Specific to SQL Server and EF Core's
+    `SqlServerTransientExceptionDetector`; needs re-deriving for other DB
+    providers.
+
+15. Local temp tables (`#temp`) are session-scoped.
     When re-running a multi-step script in pieces during manual testing,
     close and reopen the database connection rather than manually cleaning
     up temp tables, to guarantee a genuinely clean slate between runs.

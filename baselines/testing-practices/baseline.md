@@ -1,7 +1,7 @@
 # Testing Practices Baseline
 
 Status: active
-Version: 0.1.0
+Version: 0.2.0
 
 General testing-practice discipline that applies regardless of language,
 framework, or test runner: keeping individual tests self-contained, choosing
@@ -63,6 +63,54 @@ see the relevant conventions baseline for that repo's stack instead.
    while the rest fail on the same kind of assertion, the fault is
    localized to whatever differs between that peer and the failing batch —
    usually the harness — not to the product under test.
+
+5. A new real dependency can pass every mocked test and still break a
+   DB-backed integration suite.
+   When a change alters what a code path actually resolves against (a new
+   real DB/service lookup instead of an in-memory/mocked one), don't declare
+   verification complete based on mock-backed suites alone — explicitly run
+   every suite that hits real infrastructure for that code path before
+   pushing, even if slower or needing local setup. Treat "which suites did I
+   actually run" as a checklist item, not an assumption carried over from
+   earlier in the session. Only applies when a change adds/changes a real
+   resolution dependency on a path other suites also exercise via
+   seeded/fixture data.
+
+6. After a refactor that moves where logic runs, re-check that a test
+   targeting that logic still actually reaches it.
+   A refactor that moves *where* a piece of logic runs (not just renames it)
+   can leave a test green while it silently stops testing anything real — the
+   code path the test's setup depends on may have moved elsewhere, so the
+   suite stays green without ever re-entering the branch the test was written
+   to lock in. Grep for the call site the test's setup depends on rather than
+   assuming "still passes" means "still valid." Worth the check for tests
+   locking in a specific edge case or failure branch; general happy-path
+   coverage shuffling during a refactor is expected and low-risk.
+
+7. Before combining two independently-authored test builders on a shared
+   foreign key, check their defaults actually agree.
+   Combining two independent entity builders/seeding steps that share a
+   foreign key (`PinTypeId`, `ProviderId`, etc.) in a new test can produce an
+   unrelated-looking failure when their defaults silently disagree — don't
+   assume they match just because both reference the same "TestData"
+   constants. Grep each builder's own default and compare before trusting the
+   fixture. Applies to test-fixture/seeding infrastructure with multiple
+   independent builder classes; not relevant to production code paths.
+
+8. A loose test double defaults a newly-added value-type member silently;
+   audit test doubles explicitly, don't trust a green build.
+   After adding a new property/method to an interface with many existing test
+   doubles, a green build does not mean the doubles are correctly wired.
+   Value-type members (booleans, integers, enums) on a loose/lenient mock
+   framework's default test double return their default value with no
+   exception, unlike an async/task-returning member (which typically throws
+   when awaited unconfigured) — so a test can pass by coincidence (the
+   default happens to match) rather than by design. Explicitly search for and
+   update every test double implementing the interface, adding an explicit
+   configuration for the new member even where the default happens to be the
+   desired value. Doesn't apply to strict-mode mocks or members that already
+   fail loudly on first unconfigured access in the framework's own
+   conventions.
 
 ## Priority
 

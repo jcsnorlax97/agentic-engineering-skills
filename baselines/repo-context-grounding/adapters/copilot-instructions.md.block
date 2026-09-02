@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:repo-context-grounding v0.4.0 -->
+<!-- BEGIN baseline:repo-context-grounding v0.5.0 -->
 ## Portable Agent Baseline: Repo Context Grounding
 
 - Start from local instructions: read repo-level agent instructions, README, and linked docs that define setup, boundaries, ownership, or workflow.
@@ -14,6 +14,11 @@
 - When a decision hinges on which of two similar-looking folder/naming conventions is "the real one," don't infer intent from current contents (that's circular) — check the newer/less-established one's origin commit (`git log --follow --diff-filter=A`) and read its diff/message before treating the split as deliberate.
 - On a large or binary-heavy unfamiliar codebase, don't assume shell `grep`/`find --exclude-dir` is fast enough — exclude flags filter what's reported, not what's scanned. Default to a purpose-built, traversal-aware search tool instead when one is available.
 - Before code-archaeology on an unfamiliar adjacent repo, read its root CLAUDE.md/AGENTS.md/README first — it often already answers scope, consumers, and status.
+- When a task references an external repo/tool by name whose path isn't in context, ask the user for the path before running a broad/unscoped filesystem search (whole-home-dir `find`) — a scoped guess is fine, an open-ended sweep outside the working directory is slow and likely to get declined.
+- Before writing a new setup/admin script for a task a repo likely already has a runbook for, search its documentation/runbook folders for an existing canonical procedure and mirror its exact conventions, rather than improvising a shape that merely satisfies constraints.
+- On Windows, a Bash tool's (git-bash) "command not found" for a documented CLI shim is not proof it's missing — git-bash's PATH can differ from the Windows user PATH a shim installer wrote to. Check `Get-Command <name>` in PowerShell before concluding a tool isn't installed.
+- On Windows, even under Git Bash, don't assume `/tmp` exists for ad hoc scratch files — write to the session's existing scratchpad directory instead.
+- To browse or read source in a third-party GitHub repo, skip `WebFetch` (it 404s on raw/tree URLs) and use `gh api repos/{owner}/{repo}/contents/{path}` plus `--jq '.content' | base64 -d` instead, when `gh` is installed and authenticated.
 
 Apply this baseline as a startup habit for existing repositories, but never use
 it to override explicit user instructions, safety rules, privacy boundaries, or

@@ -1,13 +1,13 @@
 {
   "name": "git-collaboration-hygiene",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "status": "active",
   "description": "Always-on Git collaboration posture for AI coding agents: inspect status, protect user changes, stage explicit paths, review diffs, and avoid unsafe pushes or conflict handling.",
   "source": {
     "title": "AI OS Git Collaboration Hygiene",
     "repository": "local",
     "license": "repo-local",
-    "relationship": "Authored as a portable baseline pack from repeated AI OS collaboration and multi-agent git hygiene requirements."
+    "relationship": "Authored as a portable baseline pack from repeated AI OS collaboration and multi-agent git hygiene requirements. Principles 40-44 added 2026-09-01, and principle 35 extended with an ask-before-pushing-to-a-reviewed-PR nuance, via the baseline-gap-review skill's occurrence #2 pass over _Improvements."
   },
   "adapters": {
     "codex": "adapters/AGENTS.md.block",

@@ -1,10 +1,11 @@
 {
   "name": "testing-practices",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "status": "active",
-  "description": "General testing-practice discipline: keep tests self-contained instead of depending on external mutable config, pick the coverage layer that already verifies a behavior before adding a more expensive one, treat shared remote/E2E environments as reflecting their currently deployed build rather than local code, and localize uniform batch test failures to the shared harness before assuming the product has many independent bugs.",
+  "description": "General testing-practice discipline: keep tests self-contained instead of depending on external mutable config, pick the coverage layer that already verifies a behavior before adding a more expensive one, treat shared remote/E2E environments as reflecting their currently deployed build rather than local code, localize uniform batch test failures to the shared harness before assuming the product has many independent bugs, run real-infrastructure suites before declaring a real-dependency change verified, re-check that a refactor didn't silently detach a test from its target code path, verify combined test-builder defaults agree, and audit test doubles explicitly after widening a shared interface.",
   "origin": {
-    "note": "Distilled from general testing-practice pitfalls: shared-config test coupling where two cases need opposite settings on the same target, redundant end-to-end coverage of behavior already stable at a lower test layer, approving new E2E/approval baselines from an environment not yet running the code under test, and misdiagnosing a shared-harness fault (e.g. a common response-parsing path) as many independent product bugs."
+    "note": "Distilled from general testing-practice pitfalls: shared-config test coupling where two cases need opposite settings on the same target, redundant end-to-end coverage of behavior already stable at a lower test layer, approving new E2E/approval baselines from an environment not yet running the code under test, and misdiagnosing a shared-harness fault (e.g. a common response-parsing path) as many independent product bugs.",
+    "relationship": "Principles 5-8 added 2026-09-01, mirrored same day from es-ai-toolkit's testing-practices pack (portable, not employer-specific)."
   },
   "adapters": {
     "codex": "adapters/AGENTS.md.block",

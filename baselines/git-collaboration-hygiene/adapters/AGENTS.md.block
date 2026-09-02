@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:git-collaboration-hygiene v0.9.0 -->
+<!-- BEGIN baseline:git-collaboration-hygiene v0.10.0 -->
 ## Portable Agent Baseline: Git Collaboration Hygiene
 
 - Inspect repository state before changing or committing: check the active branch and working tree when Git is available, especially before edits, staging, commits, pulls, merges, rebases, or pushes.
@@ -35,11 +35,16 @@
 - Don't require N approvals in branch protection on a solo/near-solo-maintainer repo: most platforms disallow self-approval, so the rule locks the maintainer out of their own PRs — require PRs and block force-push/deletion, but set required approvals to 0 until there are enough people to expect a reviewer.
 - Scope `git stash -u` to explicit paths (`git stash push -u -- <paths>`) when moving work between branches, so untracked scratch/staging folders aren't swept along with it.
 - When two independent PRs both need to edit the same line of a shared file, don't edit it in both: merge one first, then rebase the other and add the shared-line edit as a follow-up commit.
-- Once a PR has a reviewer attached, treat push as a costly notification-triggering action: batch related changes, run full local verification, then push once, rather than pushing on every micro-edit.
+- Once a PR has a reviewer attached, treat push as a costly notification-triggering action: batch related changes, run full local verification, then push once, rather than pushing on every micro-edit. On a PR already under active review, ask whether it's OK to push now rather than batching silently — a new push can force the author to re-request a teammate's approval, a workflow cost invisible without being told.
 - When a reviewer's requested change conflicts with a decision the task owner already explicitly approved, don't resolve it unilaterally — present the conflict to the owner and wait for a re-decision before proceeding.
 - When a push is rejected because the remote has commits you don't have, fetch and merge them in rather than force-pushing — those remote commits may be someone else's real work, not just a stale ref.
 - Before concluding a hierarchical tracker's child item has no activity, also check whether the parent (or a sibling) has a misattached PR/commit — the detection-side companion to always referencing the child's own ID: the same wrong-level-reference mistake, made by someone else, is what you're checking for here.
 - Before pushing new commits to an already-approved review request, confirm whether the push resets approval (most tools do) and check with the decision-maker first rather than assuming approval carries forward.
+- Before committing to a multi-commit split, check whether the concerns are actually separable at the file/hunk level, not just conceptually distinct — if they're woven through the same file's hunks and there's no `git add -p`/`-i` available, default to one commit with each decision labeled in the message body rather than a risky manual patch-level split.
+- Write a multi-line commit message likely to contain an apostrophe or contraction to a file via a single-quoted heredoc and commit with `git commit -F <file>` — an inline `-m "..."` can break shell quoting mid-commit and produce confusing pathspec errors.
+- Default to a git worktree (`git worktree add -b <branch> ../<repo>-wt-<slug> <base>`) when starting new, unrelated work while the current branch is dirty, instead of stashing in place or switching branches — it fully isolates the new work from the other branch's live state.
+- Before scoping a change to a shared/multi-referenced structure (an in-use fallback list, a priority sequence), search git log/history for whether this exact class of change was done before anywhere in the codebase, even a one-off throwaway migration, before re-deriving constraints from current-state code alone.
+- When a file referenced by a ticket/doc can't be found via normal search, search all git history (`git log --all --oneline -- <path>`) before concluding it doesn't exist — if found on a non-ancestor commit, read it directly with `git show <ref>:<path>` rather than checking out that branch.
 
 This baseline takes precedence over ordinary Git habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:git-collaboration-hygiene -->

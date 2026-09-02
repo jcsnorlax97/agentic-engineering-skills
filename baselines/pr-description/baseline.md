@@ -1,7 +1,7 @@
 # PR Description Baseline
 
 Status: active
-Version: 0.3.0
+Version: 0.3.1
 
 This is a tool-neutral always-on baseline for AI coding agents that open pull
 requests in a repository. It sets the *content* of the PR: a title a reviewer
@@ -63,7 +63,7 @@ section only when it genuinely does not apply.
 
 3. Do not add AI attribution.
    No "generated with" footers, co-author trailers, or tool advertisements in
-   the title or body.
+   the title or body (see the `commit-attribution` baseline).
 
 4. Keep it proportional.
    A one-line typo fix needs a sentence, not four headed sections. Scale the
@@ -147,7 +147,8 @@ precedence over the structure here.
 ## Non-Goals
 
 - This governs the PR *description* only. It composes with, and does not
-  replace, `commit-conventions` (the commit subject/body) and
+  replace, `commit-conventions` (the commit subject/body), `commit-attribution`
+  (no AI co-author trailers or "generated with" footers), and
   `git-collaboration-hygiene` (open and push PRs only with consent).
 - This does not define or ship PR *template files*; it describes what an agent
   writes, and defers to any template the repository provides.

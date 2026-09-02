@@ -144,7 +144,7 @@ This baseline takes precedence over ordinary documentation habits, but never use
 This baseline takes precedence over ordinary planning habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:process-vs-work-doctrine -->
 
-<!-- BEGIN baseline:code-doc-sync v0.4.0 -->
+<!-- BEGIN baseline:code-doc-sync v0.5.0 -->
 ## Portable Agent Baseline: Code-Doc Sync
 
 - Check docs before closing: when a repo has architecture docs and a task changes externally observable behavior or a contract other code depends on (a public API, a documented flow, a class relationship that appears in diagrams), check the docs that describe the changed behavior and decide explicitly whether each needs updating; skipping the check is not acceptable even for bug fixes. Purely internal changes with no observable-behavior or contract impact do not require it.
@@ -155,13 +155,14 @@ This baseline takes precedence over ordinary planning habits, but never use it t
 - Before repeating a documented "gap"/"stub"/"not yet implemented" claim as current fact, check whether earlier work in this same session (in this repo or a sibling repo/branch) already closed it, and fix the doc immediately the moment it's found stale — this is the inverse trigger of the check-docs-before-closing bullet above (that fires when you change behavior and must check docs; this fires when you're about to assert a doc's existing claim as true and must check your own prior session work first).
 - When resolving an ambiguity produces a manually-enforced cross-system invariant (two independently-created values that must be kept identical, with nothing automated checking it), add a call-out to the operational onboarding template/script that actually creates the value, in the same pass as writing the decision record — not as a follow-up, even when the triggering event was a zero-code-diff decision.
 - Before committing a change to an embedded Mermaid diagram, render it with mermaid-cli to catch parse-breaking syntax errors — visual inspection of the diagram source misses syntax that only fails at render time.
+- For a rename/reshape of a field or method used across multiple projects and referenced in a linked doc (ADR/test plan), run it as one deterministic checklist instead of reconstructing it by hand each time: grep all usage sites first, fix production code, fix tests, build each touched project incrementally, full-solution build, update linked docs to match, a final stale-reference grep, then `git status`.
 
 These principles are folder-name-agnostic. If the repo specifies where documentation lives (in CLAUDE.md, README, or a project-specific section), read that first. If no documentation is found, these principles fire on nothing — that is acceptable.
 
 This baseline takes precedence over ordinary implementation habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:code-doc-sync -->
 
-<!-- BEGIN baseline:git-collaboration-hygiene v0.9.0 -->
+<!-- BEGIN baseline:git-collaboration-hygiene v0.10.0 -->
 ## Portable Agent Baseline: Git Collaboration Hygiene
 
 - Inspect repository state before changing or committing: check the active branch and working tree when Git is available, especially before edits, staging, commits, pulls, merges, rebases, or pushes.
@@ -198,11 +199,16 @@ This baseline takes precedence over ordinary implementation habits, but never us
 - Don't require N approvals in branch protection on a solo/near-solo-maintainer repo: most platforms disallow self-approval, so the rule locks the maintainer out of their own PRs — require PRs and block force-push/deletion, but set required approvals to 0 until there are enough people to expect a reviewer.
 - Scope `git stash -u` to explicit paths (`git stash push -u -- <paths>`) when moving work between branches, so untracked scratch/staging folders aren't swept along with it.
 - When two independent PRs both need to edit the same line of a shared file, don't edit it in both: merge one first, then rebase the other and add the shared-line edit as a follow-up commit.
-- Once a PR has a reviewer attached, treat push as a costly notification-triggering action: batch related changes, run full local verification, then push once, rather than pushing on every micro-edit.
+- Once a PR has a reviewer attached, treat push as a costly notification-triggering action: batch related changes, run full local verification, then push once, rather than pushing on every micro-edit. On a PR already under active review, ask whether it's OK to push now rather than batching silently — a new push can force the author to re-request a teammate's approval, a workflow cost invisible without being told.
 - When a reviewer's requested change conflicts with a decision the task owner already explicitly approved, don't resolve it unilaterally — present the conflict to the owner and wait for a re-decision before proceeding.
 - When a push is rejected because the remote has commits you don't have, fetch and merge them in rather than force-pushing — those remote commits may be someone else's real work, not just a stale ref.
 - Before concluding a hierarchical tracker's child item has no activity, also check whether the parent (or a sibling) has a misattached PR/commit — the detection-side companion to always referencing the child's own ID: the same wrong-level-reference mistake, made by someone else, is what you're checking for here.
 - Before pushing new commits to an already-approved review request, confirm whether the push resets approval (most tools do) and check with the decision-maker first rather than assuming approval carries forward.
+- Before committing to a multi-commit split, check whether the concerns are actually separable at the file/hunk level, not just conceptually distinct — if they're woven through the same file's hunks and there's no `git add -p`/`-i` available, default to one commit with each decision labeled in the message body rather than a risky manual patch-level split.
+- Write a multi-line commit message likely to contain an apostrophe or contraction to a file via a single-quoted heredoc and commit with `git commit -F <file>` — an inline `-m "..."` can break shell quoting mid-commit and produce confusing pathspec errors.
+- Default to a git worktree (`git worktree add -b <branch> ../<repo>-wt-<slug> <base>`) when starting new, unrelated work while the current branch is dirty, instead of stashing in place or switching branches — it fully isolates the new work from the other branch's live state.
+- Before scoping a change to a shared/multi-referenced structure (an in-use fallback list, a priority sequence), search git log/history for whether this exact class of change was done before anywhere in the codebase, even a one-off throwaway migration, before re-deriving constraints from current-state code alone.
+- When a file referenced by a ticket/doc can't be found via normal search, search all git history (`git log --all --oneline -- <path>`) before concluding it doesn't exist — if found on a non-ancestor commit, read it directly with `git show <ref>:<path>` rather than checking out that branch.
 
 This baseline takes precedence over ordinary Git habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:git-collaboration-hygiene -->
@@ -219,7 +225,7 @@ This baseline takes precedence over ordinary Git habits, but never use it to ove
 This baseline takes precedence over ordinary implementation and test-writing habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:oop-extension-safety -->
 
-<!-- BEGIN baseline:repo-context-grounding v0.4.0 -->
+<!-- BEGIN baseline:repo-context-grounding v0.5.0 -->
 ## Portable Agent Baseline: Repo Context Grounding
 
 - Start from local instructions: read repo-level agent instructions, README, and linked docs that define setup, boundaries, ownership, or workflow.
@@ -235,13 +241,18 @@ This baseline takes precedence over ordinary implementation and test-writing hab
 - When a decision hinges on which of two similar-looking folder/naming conventions is "the real one," don't infer intent from current contents (that's circular) — check the newer/less-established one's origin commit (`git log --follow --diff-filter=A`) and read its diff/message before treating the split as deliberate.
 - On a large or binary-heavy unfamiliar codebase, don't assume shell `grep`/`find --exclude-dir` is fast enough — exclude flags filter what's reported, not what's scanned. Default to a purpose-built, traversal-aware search tool instead when one is available.
 - Before code-archaeology on an unfamiliar adjacent repo, read its root CLAUDE.md/AGENTS.md/README first — it often already answers scope, consumers, and status.
+- When a task references an external repo/tool by name whose path isn't in context, ask the user for the path before running a broad/unscoped filesystem search (whole-home-dir `find`) — a scoped guess is fine, an open-ended sweep outside the working directory is slow and likely to get declined.
+- Before writing a new setup/admin script for a task a repo likely already has a runbook for, search its documentation/runbook folders for an existing canonical procedure and mirror its exact conventions, rather than improvising a shape that merely satisfies constraints.
+- On Windows, a Bash tool's (git-bash) "command not found" for a documented CLI shim is not proof it's missing — git-bash's PATH can differ from the Windows user PATH a shim installer wrote to. Check `Get-Command <name>` in PowerShell before concluding a tool isn't installed.
+- On Windows, even under Git Bash, don't assume `/tmp` exists for ad hoc scratch files — write to the session's existing scratchpad directory instead.
+- To browse or read source in a third-party GitHub repo, skip `WebFetch` (it 404s on raw/tree URLs) and use `gh api repos/{owner}/{repo}/contents/{path}` plus `--jq '.content' | base64 -d` instead, when `gh` is installed and authenticated.
 
 Apply this baseline as a startup habit for existing repositories, but never use
 it to override explicit user instructions, safety rules, privacy boundaries, or
 stricter repo-local instructions.
 <!-- END baseline:repo-context-grounding -->
 
-<!-- BEGIN baseline:commit-conventions v0.1.0 -->
+<!-- BEGIN baseline:commit-conventions v0.1.1 -->
 ## Portable Agent Baseline: Commit Conventions
 
 - Write every commit message in the [Conventional Commits](https://www.conventionalcommits.org/) format: `<type>(<optional scope>): <description>`, optionally followed by a blank line, a body, and footer(s).
@@ -249,7 +260,7 @@ stricter repo-local instructions.
 - Keep the subject in present-tense imperative mood and 72 characters or fewer ("add logging", not "added logging"), with no trailing period. Scope is optional but encouraged in larger codebases.
 - Put the "why" in the body when the change is not self-evident, wrapping prose at roughly 72 columns. Reference tracking items in the footer: `Closes #123` (GitHub) or `AB#12345` (Azure DevOps work item).
 - Flag breaking changes with `!` after the type/scope (`feat(api)!: ...`) or a `BREAKING CHANGE:` footer.
-- This governs message format only. It composes with `git-collaboration-hygiene` (stage explicit paths, review the staged diff before committing).
+- This governs message format only. It composes with `git-collaboration-hygiene` (stage explicit paths, review the staged diff before committing) and `commit-attribution` (no AI co-author trailers or "generated with" footers).
 
 This baseline takes precedence over ordinary commit habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions (including a repository's own established commit convention).
 <!-- END baseline:commit-conventions -->
@@ -269,7 +280,7 @@ This baseline takes precedence over ordinary commit habits, but never use it to 
 Apply this baseline before dispatching, coordinating, or reporting on sub-agent/background-agent work, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions. This does not cover which agent/model to pick, or prompt-engineering content quality — only dispatch/coordination/scope mechanics.
 <!-- END baseline:agent-orchestration -->
 
-<!-- BEGIN baseline:documentation-craft v0.3.0 -->
+<!-- BEGIN baseline:documentation-craft v0.4.0 -->
 ## Portable Agent Baseline: Documentation Craft
 
 - **[Top-priority principle — outranks the rest below.]** Use one word if it conveys what two would; two words if they convey what more than two would; one sentence if it conveys what more than one would — apply this recursively at every level (word, phrase, clause, sentence, paragraph, section), not just once. Length is not neutral; it's the default this principle pushes back against. Does not apply to durable audit/decision records (ADRs, incident writeups, handoff docs) where completeness outweighs brevity.
@@ -287,6 +298,14 @@ Apply this baseline before dispatching, coordinating, or reporting on sub-agent/
 - After several rounds of incremental, localized edits to the same document, do one full linear read-through before finishing — per-edit review only catches whether each addition is correct in isolation, not whether the document's ordering and cross-references still hold (e.g. a conclusion that cites content added after it).
 - When a resolved decision record is superseded, append a dated "superseded" block in place, preserving the original reasoning, rather than rewriting the file or forking to a new one.
 - Before correcting an outdated document, classify it first: a point-in-time snapshot (annotate/point to the current source, leave the body's original reasoning unchanged) or a continuously-maintained reference (correct in place, dated) — the two natures require opposite correction strategies, and using the wrong one for either causes real problems.
+- Run a comment-tightening pass as diff+grep+rebuild (extract added comment lines from the diff, group into blocks, edit, re-scan, gate on a full rebuild+tests), and never invent a shortened/paraphrased form of a referenced code identifier while tightening a comment — keep it byte-for-byte or re-verify against the declaration.
+- When synthesizing a messy human source (meeting notes, a transcript) into a clean doc, flag internal contradictions found in it explicitly rather than silently picking the reading that seems more plausible — only the original author can adjudicate what they meant.
+- Update a project's own knowledge folders (glossary, decision log, open-questions) when a durable fact is learned in conversation, not just when code changes — don't wait to be asked, and don't rely on a code-change-triggered doc-sync rule to cover it.
+- Before publishing a Mermaid-in-HTML diagram, never rely on `<br/>` inside a `Note over` statement for a line break (use stacked `Note over` lines instead) and grep for any bare `&` not already a valid entity before every publish.
+- Tag each listed mitigation as closes-at-root, reduces-odds, or detection-only — never a bare "addressed by"/"closes"/"fixes" — and re-check the rest of the document for the same overstatement once one instance is found.
+- Given a false claim already found once, grep the literal text across every touched directory, classify each hit as live vs. deliberately-historical and apply the matching fix, then re-scan every document of the same genre for the same class of issue, not just the one hit.
+- When trimming drafted content to a known hard platform character limit, compute the exact excess up front and make one deliberate cut sized to it, rather than iterating blind small edits with a recount after each one.
+- Match the codebase's existing selective doc-comment convention (structured comments on some public members, plain comments on implementation detail) rather than defaulting to documenting everything or nothing in a pass.
 
 Apply this baseline whenever writing, restructuring, relocating, or reviewing documentation, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions. This does not cover code/doc sync (see `code-doc-sync`) or living-handoff-document lifecycle (see `handoff-doc-discipline`).
 <!-- END baseline:documentation-craft -->

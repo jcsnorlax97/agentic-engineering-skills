@@ -1,7 +1,7 @@
 # Code-Doc Sync Baseline
 
 Status: active
-Version: 0.4.0
+Version: 0.5.0
 
 Always-on documentation hygiene for AI coding agents working in repositories
 that contain architecture documentation, flow diagrams, or developer references
@@ -88,6 +88,18 @@ an abstract declaration site instead of the concrete runtime type.
    catch parse-breaking syntax errors. Visual inspection of the diagram
    source is not sufficient — some syntax errors only surface at render time
    and are not visible by reading the text.
+
+9. Run a rename/reshape that touches a linked doc as one deterministic
+   checklist, not a reconstructed-by-hand sequence.
+   For any rename/reshape of a field or method used across multiple projects
+   and referenced in a linked doc (ADR/test plan) — especially likely to
+   recur multiple times in one session during active design churn — run it
+   as: (1) grep all usage sites first, don't rely on memory of "the
+   propagation points"; (2) fix production code; (3) fix tests; (4) build
+   each touched project incrementally; (5) full-solution build; (6) update
+   linked docs to match; (7) a final stale-reference grep; (8) `git status`
+   sanity check. A one-off single-file rename with no accompanying doc
+   doesn't need this.
 
 ## Applying in a Repo
 

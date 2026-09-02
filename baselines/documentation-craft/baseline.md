@@ -1,7 +1,7 @@
 # Documentation Craft Baseline
 
 Status: active
-Version: 0.3.0
+Version: 0.4.0
 
 Always-on discipline for documentation structure, mechanics, and prose-style
 decisions — how a document is organized, linked, scoped, and worded. This is
@@ -147,11 +147,111 @@ independent of whether that documentation happens to describe code.
     correction strategies, and using the wrong one for either causes real
     problems.
 
+16. Run a comment-tightening pass as diff+grep+rebuild, and never paraphrase
+    a referenced code identifier while shortening a comment.
+    Given a branch and a base ref, tighten wordy comments by: extracting
+    every added comment line from the diff, grouping into contiguous
+    multi-line blocks, flagging blocks over N lines as candidates, editing
+    one file at a time, then re-running the same diff scan to confirm
+    convergence — and gate the commit on a full rebuild plus affected test
+    suites passing, since a comment-only edit can still introduce a real
+    regression. Specifically: when shortening or paraphrasing a comment that
+    references a specific code identifier (an enum member, a method name, a
+    field name), never invent a shortened/paraphrased form of the identifier
+    itself — keep it byte-for-byte as it appears in code, or re-verify
+    against the actual declaration before using a shortened form. Diff any
+    identifier-looking tokens in the "before" vs. "after" text and flag if
+    the after-text introduces a token not found by grep in the codebase.
+
+17. When synthesizing a messy human source into a clean doc, flag
+    contradictions found in it — don't silently pick one.
+    When normalizing a messy human source (meeting notes, a chat transcript,
+    a voice-memo dump) into a clean, structured doc, actively look for
+    internal contradictions in the source rather than only looking for facts
+    to extract. When found, preserve the contradiction explicitly in the
+    output (quote or paraphrase both sides) and flag it as unresolved —
+    don't silently resolve it by picking whichever reading seems more
+    plausible; only the original author can adjudicate what they meant. This
+    applies specifically to normalizing informal/real-time notes where
+    contradictions are a natural byproduct of fast note-taking; doesn't
+    apply to genuinely ambiguous phrasing with no real contradiction, which
+    can be clarified with reasonable inference noted as an inference.
+
+18. Update a project's own knowledge folders when a fact is learned, not
+    just when code changes.
+    When a conversation resolves an open design question, corrects a stale
+    assumption, or surfaces a new durable domain term, proactively update
+    the project's own knowledge folders (glossary, decision log, an
+    open-questions folder) in the same turn. The trigger is "a durable fact
+    became known," not "code changed" — don't wait to be asked, and don't
+    rely on a code-change-triggered doc-sync rule (see `code-doc-sync`) to
+    cover conversational/business findings it was never scoped to catch.
+
+19. Before publishing a Mermaid-in-HTML (or other HTML/XML-rendered)
+    diagram artifact, check for two specific rendering traps.
+    (a) Never rely on `<br/>` inside a `Note over` statement for a line
+    break — some renderers silently drop it, concatenating the two halves
+    with no space; use consecutive stacked `Note over` lines instead,
+    reserving `<br/>` for message-arrow labels only, which do render it
+    correctly. (b) Grep the file for any bare `&` not already part of a
+    valid entity (`&amp;`, `&gt;`, `&lt;`) before every publish, not just the
+    first one — domain text containing a literal `&` will otherwise break
+    rendering silently. Irrelevant for plain markdown or code-only
+    artifacts.
+
+20. Tag each listed mitigation as closes-at-root, reduces-odds, or
+    detection-only — never a bare "addressed by."
+    When documenting mitigations against failure/risk scenarios (tables,
+    ADRs, recommendation sections), never use a generic verb like "addressed
+    by"/"closes"/"fixes" unless the item is actually a guarantee — explicitly
+    tag each mitigation as closes-at-the-root, reduces-likelihood, or
+    detection-only, and add an explicit disclaimer near the table if nothing
+    in the tier being described is a guarantee. Re-check every section of
+    the document for the same overstatement once one instance is found — it
+    tends to recur in prose summaries even after the table itself is fixed.
+
+21. Given a false claim already found once, run a fact-correction sweep
+    across the whole genre, not just the one hit.
+    Given a wrong claim already flagged once: (a) grep the literal text
+    across every directory touched this session; (b) for each hit, classify
+    it as live/current vs. deliberately-preserved-historical and apply the
+    matching fix convention (silent correction in live docs; a visible
+    correction note in sections deliberately kept as history, per principle
+    17's supersede-in-place convention); (c) beyond the literal string,
+    re-scan every document of the same genre (all ADRs, all planning notes)
+    for the same *class* of issue, since the same mistake is often phrased
+    differently elsewhere — don't stop at fixing the one instance that was
+    pointed out.
+
+22. Compute the exact cut for a known platform character limit up front —
+    don't trim in small blind iterations.
+    When trimming drafted content to a known hard platform length limit
+    (a PR description cap, a field's character limit), compute the exact
+    excess (current length minus limit) up front and make one deliberate
+    cut sized to that excess, or draft within a per-section budget from the
+    start, rather than iterating blind small edits with a recount after
+    each one. Only worth this for a known, fixed platform constraint — not
+    worth building process around for a one-off trim with no known limit.
+
+23. Match the codebase's existing selective doc-comment convention; don't
+    default to documenting everything or nothing.
+    When adding or converting structured doc comments in a pass (XML doc,
+    docstrings, Javadoc — whatever the language's convention is), check
+    whether the codebase already applies it selectively (structured comments
+    on some public members, not all; plain inline comments on
+    implementation detail) and match *that* granularity rather than a
+    blanket rule. Apply structured doc comments only to genuine public API
+    surface intended for generated-doc/IntelliSense consumption; keep plain
+    inline comments on private implementation, especially ones carrying
+    "why this line does X" reasoning that doesn't map to a structured
+    comment's per-member shape — converting it is pure churn against the
+    file's established style.
+
 ## Priority
 
 **Principle 1 outranks every other principle in this baseline, including the
-other fourteen below it** — it is not one of fifteen equally-weighted rules,
-it is the lens the other fourteen get read through. Apply the whole baseline
+other twenty-two below it** — it is not one of twenty-three equally-weighted
+rules, it is the lens the rest get read through. Apply the whole baseline
 whenever writing, restructuring, relocating, or reviewing documentation, but
 never use it to override explicit user instructions, safety rules, privacy
 boundaries, or stricter repo-local instructions — including a repo's own

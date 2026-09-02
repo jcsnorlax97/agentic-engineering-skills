@@ -1,13 +1,13 @@
 {
   "name": "pr-description",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "status": "active",
   "description": "Always-on pull request description posture for AI coding agents: fill a repo's PR template when present, otherwise write a title in Conventional Commits form and a body covering what, why, how it was verified, and risk, with tracking references in the footer and no AI attribution.",
   "source": {
     "title": "PR Description Convention",
     "repository": "local",
     "license": "repo-local",
-    "relationship": "Authored as a portable baseline pack to sit alongside commit-conventions and git-collaboration-hygiene, governing the human-facing PR body rather than the commit message. Kept generic so it applies to work and personal repositories."
+    "relationship": "Authored as a portable baseline pack to sit alongside commit-conventions and git-collaboration-hygiene, governing the human-facing PR body rather than the commit message. Kept generic so it applies to work and personal repositories. 2026-09-01: ported explicit commit-attribution cross-references (Rule 3, Non-Goals) from the sibling es-ai-toolkit pack (was ahead here); its Rule 5 ADO-specific wording is a legitimate scope difference, not ported."
   },
   "adapters": {
     "codex": "adapters/AGENTS.md.block",

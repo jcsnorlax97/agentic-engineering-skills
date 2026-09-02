@@ -38,3 +38,13 @@ When the Read tool can't usefully return a file's text directly:
   rendered diagram's SVG can be too big to read in full, but the visible
   labels are still plain text between tag boundaries — `grep -oE '>[^<]+<'
   file.svg` pulls out the label strings without parsing the SVG structurally.
+- **Large PDF, exact text needed (not visual layout)**: try `pdftotext`
+  before concluding the primary source is unreachable. On a 2026-09-01
+  occurrence, the "proper" tools were all missing — `pdftoppm` (page-image
+  render) and every Python PDF library (`fitz`, `pypdf`, `PyPDF2`) were
+  unavailable — which initially looked like a dead end for reading a
+  115-page vendor spec PDF. `pdftotext` turned out to already be on PATH
+  (bundled with Git for Windows) and worked fine: `pdftotext -layout -f
+  <start> -l <end> file.pdf -` pulls an exact page range as text with no
+  install needed, whenever the need is exact text/field names rather than
+  visual layout.

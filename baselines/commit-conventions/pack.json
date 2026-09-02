@@ -1,13 +1,13 @@
 {
   "name": "commit-conventions",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "status": "active",
   "description": "Always-on commit message format for AI coding agents: write every commit in the Conventional Commits format (<type>(scope): description) with an imperative, <=72-char subject, a body that explains why, and issue/work-item references in the footer.",
   "source": {
     "title": "Conventional Commits Specification",
     "repository": "conventionalcommits.org",
     "license": "CC-BY-3.0",
-    "relationship": "Authored as a portable baseline pack from the Conventional Commits spec; kept generic so it applies to work and personal repositories."
+    "relationship": "Authored as a portable baseline pack from the Conventional Commits spec; kept generic so it applies to work and personal repositories. 2026-09-01: ported a Non-Goals cross-reference to the commit-attribution baseline from the sibling es-ai-toolkit pack (was ahead here)."
   },
   "adapters": {
     "codex": "adapters/AGENTS.md.block",

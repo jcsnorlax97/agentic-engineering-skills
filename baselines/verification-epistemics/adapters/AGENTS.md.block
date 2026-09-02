@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:verification-epistemics v0.4.0 -->
+<!-- BEGIN baseline:verification-epistemics v0.5.0 -->
 ## Portable Agent Baseline: Verification Epistemics
 
 - A "confirmed" claim inherited from a prior session, a stale docs branch, or a teammate's description is a starting hypothesis, not a fact — re-check it against current code/data before acting on it, especially crossing a service/repo boundary or a fast-changing system.
@@ -58,6 +58,16 @@
 - A closeout/retrospective review pass needs a fixed multi-category checklist (unclassified statements, session self-inconsistency, dedup-vs-existing-records) run every time, not a single-direction scan repeated only until someone asks "anything else?"
 - When new evidence downgrades the severity of one finding in a batch of similarly-reported findings, scope the downgraded language explicitly to that one finding and state the others retain their original severity — don't let softened tone bleed across the batch by default.
 - Before shipping a fix for a reported-but-not-directly-observed symptom, build a direct reproduction of the exact failure, confirm it shows the problem, then re-run that *same* reproduction after the fix — a plausible proxy check on an adjacent code path is not a substitute for re-triggering the original symptom.
+- In any decision/design document meant to be authoritative, mark every quantitative figure or stakeholder-attributed claim as traceable to a real source or explicitly an internal estimate — never let a number used illustratively in conversation, or the team's own conclusion, drift into reading as stakeholder-confirmed.
+- When multiple verification gaps exist on the same work, rank them by failure visibility (silent-and-wrong outranks loud-and-obvious) rather than listing them flat, and close the silent-failure risk first if only one can be checked before shipping.
+- Re-verify a vendor/protocol behavior claim against the primary spec document, not a local summary or glossary — and extend "primary source" to a sibling in-house service's own endpoint/handler code when the claim is about that service's behavior, not just to vendor spec documents.
+- Before trusting a harness's negative result, check three fidelity gaps: does it route through the same layer the real path consults (not a lower-level proxy); does it use domain data that actually resolves (not an arbitrary placeholder); and for a mock of an insert/refetch-style method, does it return a genuine copy rather than aliasing the input (an aliasing mock can mask both the bug and the regression test meant to catch it).
+- When a planned test turns out infeasible, record the resulting coverage gap explicitly in the design doc/ADR along with what alternative evidence substitutes for it — don't just revert and move on silently.
+- Before relying on a shared/deployed environment to validate a just-merged change, confirm with a cheap differential probe (a route that only works post-change, one that should no longer work the old way) rather than inferring "deployed" from "merged."
+- Copy a path from the most recent successful listing/tool result verbatim for a follow-up operation rather than reconstructing it from memory.
+- Never pass `--no-build` (or any stale-output shortcut) when running a test/verification command specifically to confirm the effect of a just-made source edit — force a fresh build first.
+- To justify or challenge an existing design decision, trace the specific call site via `git log -S <symbol>` to its introducing commit, then that commit's PR description, the PR's linked ticket, and team chat for incident history — report the original constraint and whether it still holds separately. Full chain only when historical justification is explicitly wanted.
+- State a verification boundary unprompted, in the same message that reports success, rather than waiting for a pointed question — "confirmed X via tests; not confirmed: real-world Y, because Z" beats a bare pass count that reads as full verification when it only covered a mocked contract.
 
 Apply this baseline before presenting a conclusion or summary of "what's true here," but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:verification-epistemics -->

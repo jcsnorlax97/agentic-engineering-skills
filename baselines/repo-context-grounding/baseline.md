@@ -1,7 +1,7 @@
 # Repo Context Grounding
 
 Status: active
-Version: 0.4.0
+Version: 0.5.0
 
 Before meaningful work in an existing repository:
 
@@ -18,6 +18,11 @@ Before meaningful work in an existing repository:
 - When a decision hinges on which of two similar-looking folder/naming conventions is "the real one," don't infer intent from current contents (that's circular) — check the newer/less-established one's origin commit (`git log --follow --diff-filter=A`) and read its diff/message before treating the split as deliberate.
 - On a large or binary-heavy unfamiliar codebase, don't assume shell `grep`/`find --exclude-dir` is fast enough — exclude flags filter what's reported, not what's scanned. Default to a purpose-built, traversal-aware search tool instead when one is available.
 - Before code-archaeology on an unfamiliar adjacent repo, read its root CLAUDE.md/AGENTS.md/README first — it often already answers scope, consumers, and status.
+- When a task references an external repo/tool by name whose path isn't in the working directory, memory, or visible context, ask the user for the path before running a broad/unscoped filesystem search (a whole-home-dir `find`, a recursive search across unrelated trees) — a scoped guess (a likely parent folder) is fine, but an open-ended sweep outside the working directory is both slow and likely to get declined. Doesn't apply to searches scoped to the current working directory or its known subdirectories.
+- Before writing a new setup/admin script for a task a repo likely already has a runbook for, search the repo's documentation/runbook folders for an existing canonical procedure first, and mirror its exact conventions — don't improvise a shape that merely satisfies constraints, even for "throwaway" work, since deviations get silently baked into reusable scripts.
+- On Windows, when a Bash tool's (git-bash) `which`/`command -v` reports a documented, user- or repo-installed CLI shim as "not found," that is not proof the shim is missing — git-bash's PATH can differ from the Windows user PATH a shim installer wrote to. Check `Get-Command <name>` in PowerShell (or `cmd.exe /c where <name>`) before concluding a documented tool isn't installed. Doesn't apply when nothing is found in either shell, or on non-Windows environments with only one shell/PATH to check.
+- On Windows, even under Git Bash, don't assume `/tmp` exists — don't target it for ad hoc scratch files (content staged for a CLI's `@file`/piped argument). Write directly to the session's existing scratchpad directory instead of attempting `/tmp` first and falling back after a failure.
+- To browse or read source files in a third-party (non-local) GitHub repo, skip `WebFetch` (it reliably 404s on `raw.githubusercontent.com` and `github.com/.../tree/...` URLs) and go straight to `gh api repos/{owner}/{repo}/contents/{path}` (list a directory) plus `--jq '.content' | base64 -d` (read a file) — only when `gh` is installed/authenticated and the target is GitHub-hosted; for arbitrary non-GitHub pages `WebFetch` remains the right tool.
 
 ## Priority
 

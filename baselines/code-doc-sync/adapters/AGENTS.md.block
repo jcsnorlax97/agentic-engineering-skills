@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:code-doc-sync v0.4.0 -->
+<!-- BEGIN baseline:code-doc-sync v0.5.0 -->
 ## Portable Agent Baseline: Code-Doc Sync
 
 - Check docs before closing: when a repo has architecture docs and a task changes externally observable behavior or a contract other code depends on (a public API, a documented flow, a class relationship that appears in diagrams), check the docs that describe the changed behavior and decide explicitly whether each needs updating; skipping the check is not acceptable even for bug fixes. Purely internal changes with no observable-behavior or contract impact do not require it.
@@ -9,6 +9,7 @@
 - Before repeating a documented "gap"/"stub"/"not yet implemented" claim as current fact, check whether earlier work in this same session (in this repo or a sibling repo/branch) already closed it, and fix the doc immediately the moment it's found stale — this is the inverse trigger of the check-docs-before-closing bullet above (that fires when you change behavior and must check docs; this fires when you're about to assert a doc's existing claim as true and must check your own prior session work first).
 - When resolving an ambiguity produces a manually-enforced cross-system invariant (two independently-created values that must be kept identical, with nothing automated checking it), add a call-out to the operational onboarding template/script that actually creates the value, in the same pass as writing the decision record — not as a follow-up, even when the triggering event was a zero-code-diff decision.
 - Before committing a change to an embedded Mermaid diagram, render it with mermaid-cli to catch parse-breaking syntax errors — visual inspection of the diagram source misses syntax that only fails at render time.
+- For a rename/reshape of a field or method used across multiple projects and referenced in a linked doc (ADR/test plan), run it as one deterministic checklist instead of reconstructing it by hand each time: grep all usage sites first, fix production code, fix tests, build each touched project incrementally, full-solution build, update linked docs to match, a final stale-reference grep, then `git status`.
 
 These principles are folder-name-agnostic. If the repo specifies where documentation lives (in CLAUDE.md, README, or a project-specific section), read that first. If no documentation is found, these principles fire on nothing — that is acceptable.
 

@@ -1,7 +1,7 @@
 # Commit Conventions Baseline
 
 Status: active
-Version: 0.1.0
+Version: 0.1.1
 
 This is a tool-neutral always-on baseline for AI coding agents that write
 commits in a repository. It sets the *format* of the commit message: every
@@ -74,7 +74,9 @@ its own commit convention, follow that instead.
 
 - This governs message *format* only. It composes with, and does not replace,
   the `git-collaboration-hygiene` baseline (stage explicit paths, review the
-  staged diff, keep remote operations consent-based).
+  staged diff, keep remote operations consent-based) and the
+  `commit-attribution` baseline (no AI co-author trailers or "generated with"
+  footers).
 - This does not govern branch naming (see the `branch-naming` baseline), PR
   descriptions (see the `pr-description` baseline), changelogs, release notes,
   or versioning policy.
