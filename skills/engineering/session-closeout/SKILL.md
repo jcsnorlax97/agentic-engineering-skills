@@ -30,9 +30,11 @@ Steps 1-3 only ever see what's in the live conversation context. If this session
   - Read context only around hits, not the whole file linearly.
   - Give the subagent an explicit stop condition (e.g. "stop once you've covered the full pre-compaction portion or spent roughly N tool calls, whichever first") so a very large session can't turn this into an unbounded pass.
   - Ask it to report back candidate lessons/improvements in the same shape Step 2/3 expect (situation → rule, plus enough concrete detail to judge sanitization), explicitly flagging anything already covered by the in-context summary so it isn't re-proposed.
-- **Fold in**: treat what this pass finds as additional candidates for Step 2 (lesson-extraction) and Step 3 (improvement-extraction) — same confirm-before-write gate applies to anything it surfaces that's lesson-shaped; no gate for anything improvement-shaped.
+- **Fold in**: treat what this pass finds as additional candidates for Step 2 (lesson-extraction) — same confirm-before-write gate applies to anything it surfaces that's lesson-shaped. Do not fold these into Step 3's candidates — Step 3 handles the compacted case itself (see Step 3) using `improvement-extraction`'s own full-sweep mode, which gives exhaustive per-chunk coverage rather than this pass's keyword-matched approximation. `lesson-extraction` has no equivalent full-sweep mode, so this bounded pass remains the only compaction recovery it gets.
 
 This step exists because it happened twice without it: a session ended, `session-closeout` ran normally, the user asked afterward whether compaction might have dropped something, and a manual mining pass confirmed it had — both times. Making this automatic means the user shouldn't need to ask.
+
+*(2026-09-02 refinement: originally this step's findings fed both Step 2 and Step 3. Since `improvement-extraction` has its own native full-sweep mode, delegating Step 3's compacted case to it directly gives strictly better coverage than this step's grep-pattern approximation, for that skill specifically — see Step 3.)*
 
 ## Step 1 — Session-log capture
 
@@ -44,7 +46,7 @@ If `lesson-extraction` is available, invoke it via the Skill tool. It has its ow
 
 ## Step 3 — Improvement extraction
 
-If `improvement-extraction` is available, invoke it via the Skill tool. It writes candidate baseline/skill notes to `IMPROVEMENTS_ROOT` with no confirmation gate, since that folder is scratch material for later manual review. If it isn't installed, note that plainly and move on to Step 4.
+If `improvement-extraction` is available, invoke it via the Skill tool. **If Step 0.5 detected compaction, invoke it in full-sweep mode** (pass `full-session`/`--fs`) instead of its default scope — its own exhaustive per-chunk-agent scan gives full coverage of the pre-compaction transcript, rather than relying on Step 0.5's cheaper keyword-matched approximation for this step's candidates. Accept the real per-chunk token cost (~100-120k tokens/chunk) in that case: this is the same failure mode Step 0.5 exists for (compaction silently dropping a candidate), which has already occurred twice, and `improvement-extraction`'s own full-sweep is strictly more thorough than Step 0.5's grep-based pass for this skill specifically. If no compaction was detected, invoke it in its normal default-scope mode as before. It writes candidate baseline/skill notes to `IMPROVEMENTS_ROOT` with no confirmation gate, since that folder is scratch material for later manual review. If it isn't installed, note that plainly and move on to Step 4.
 
 ## Step 3.5 — Improvements backlog nudge
 
@@ -79,7 +81,7 @@ extrapolation assumed.
 
 ## Step 4 — Consolidated report
 
-After all three steps finish, are explicitly skipped, or turn out unavailable, give the user one summary covering all three: what was written, what was extended, what each skill found nothing worth capturing, and which steps were skipped because a skill wasn't installed. If Step 0.5 ran and found anything, say so explicitly (what it found, and that it came from mining the pre-compaction transcript, not the live context) rather than folding it in silently. If Step 3.5 flagged the backlog, include its one line. Do not print three separate skill reports back to back — merge them into a single readable summary.
+After all three steps finish, are explicitly skipped, or turn out unavailable, give the user one summary covering all three: what was written, what was extended, what each skill found nothing worth capturing, and which steps were skipped because a skill wasn't installed. If Step 0.5 ran and found anything, say so explicitly (what it found, and that it came from mining the pre-compaction transcript, not the live context) rather than folding it in silently. If Step 3 ran in escalated full-sweep mode (compaction detected), say so explicitly rather than reporting it the same as a normal-scope run. If Step 3.5 flagged the backlog, include its one line. Do not print three separate skill reports back to back — merge them into a single readable summary.
 
 ## Notes
 
